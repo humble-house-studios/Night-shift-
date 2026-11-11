@@ -7,34 +7,35 @@ someone the office has kept far longer than you. Quirky dread (Mouthwashing by
 way of The Office) that turns warm: the way out is being kind to the people
 still on the night shift.
 
-**Shape.** One night, ~20 minutes, talk only. Act 1 (12:00-3:30): meet
-everyone. The 3:33 blackout starts once you've met all four. Act 2: earn the
-three things. Finale at 5:59: the Night Manager offers you a promotion.
+**Shape.** One night, ~30 minutes, talk only, three acts, three floors. Each
+floor's elevator wants three things, and each sits with someone the building
+has kept: the item comes with a choice to be kind or cold, and kindness is
+what gets people out (they're in the field at the end).
 
-**People.**
-- **Wendy Okafor ("NIGHTS")**, custodian, 31 years, hasn't seen a sunrise
-  since 1995. Gives the rules card. Asking her real name is the key; she gives
-  your TIMECARD after 3:33, and her own never-punched card.
-- **Kip**, the eternal intern, day 1,096 of onboarding, stuck on quiz question
-  4 ("the company's most valuable asset"). His welcome video shows the founder:
-  Dale. After 3:33 he freezes; typing his own name frees him (optional).
-- **PRINTY-9000**, the copier, printing the same poem since 1998, jammed on
-  the last line. Give it one (after 3:33) and it prints the OVERRIDE CODE (0600).
-- **Dale**, from Look Busy: secretly the founder who got scared of the top and
-  invented the Night Manager to say the hard things for him. Hasn't gone home
-  because he's afraid of missing his daughter's 9 AM recital. Signs as founder
-  (MANAGER'S SIGNATURE); tell him to go and he does.
-- **The Night Manager**, a polite voice on the phone and every screen: Dale's
-  "no", grown into a job. Final offer: become him.
-- Extras: the coffee maker (rule five), Employee of the Month (your frame is
-  waiting), the window (the clock tower is stuck), the elevator (rule three:
-  ride it before six and you wake at 11:58 again, keeping what you know).
+**ACT ONE: THE NIGHT SHIFT (11:58 PM, floor 1).** Wake at your desk; the Night
+Manager: clocking out is approved at the top, the elevator takes associates
+and above. Wendy (rules card; ask her real name; TIMECARD and her own card),
+Kip (day 1,096 of onboarding; after the lights go funny, type his own name:
+ASSOCIATE BADGE), Printy (the poem's last line: OVERRIDE CODE 0600), Dale
+(warm, mints, his daughter Lucy's 9 AM recital, "up's the only way out").
+1:11 AM: every screen says FLOOR 2 IS WAITING. Rule three: never ride the
+elevator down (if you do, you wake at 11:58 again, keeping what you know).
 
-**Endings.** PROMOTED (accept), or CLOCKED OUT at sunrise with an epilogue
-line for each person you got out (0-4), plus the coffee if you were nice to it.
-Last line: "Go home. And be kind to whoever's still on the night shift."
+**ACT TWO: MIDDLE MANAGEMENT (2:04 AM, floor 2).** Marge, floor manager, has
+walked the same loop for 21 years (KEYCARD: ask her to sit). Chad, VP working
+from home, frozen on a video call from his boat since March 2019 (SIGN-OFF:
+tell him he can leave the meeting). Brenda in HR, smile stuck since a 2016
+retreat (FORM 6-0-0: ask if she's okay; her sister's wedding). 3:33 AM: forty
+phones ring three times (rule one), the tubes die, Marge stops walking.
 
-**Wendy's rules.** Never answer the phone on the third ring. If the printer
-starts printing by itself, let it finish. Don't take the elevator before six.
-If someone asks you to stay, say no. Politely. Never let the coffee hear you
-complain.
+**ACT THREE: THE TOP (4:44 AM).** The board, four suits in unison, ask
+question four again (callback to Kip). The CEO's chair: an empty suit, a
+purple note "SAY NO FOR ME. —D". Dale comes up the stairs: founder, invented
+the Night Manager so he'd never have to say no, hides in receivables, scared
+of missing the recital (FOUNDER'S SIGNATURE). 5:59: the offer, the chair.
+Accept = PROMOTED (credits over the boardroom). Refuse = Dale finally says
+no himself; 6:00 sunrise through the boardroom window; the elevator grows a
+ROOF button: a wheat field, an impressionist summer sky, everyone you got
+out, a dream-pop track and the credits (each person's epilogue, the ones
+still inside, the cast, "Go home. And be kind to whoever's still on the
+night shift.", THE END).

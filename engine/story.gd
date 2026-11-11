@@ -164,9 +164,17 @@ func clock_text() -> String:
 	return "%d:%02d %s" % [h12, m % 60, ampm]
 
 
-## The three things you need to clock out, as [label, have].
+## Which act (floor) you're on: 1, 2 or 3.
+func act() -> int:
+	return 3 if has("floor3") else (2 if has("floor2") else 1)
+
+
+## What this floor's elevator wants, as [label, have].
 func goals() -> Array:
-	return [["TIMECARD", has("has_timecard")], ["MANAGER'S SIGNATURE", has("has_signature")], ["OVERRIDE CODE", has("has_code")]]
+	var out := []
+	for g in data.GOALS[act()]:
+		out.append([g[0], has(g[1])])
+	return out
 
 
 ## Who you got out (for the ending): ids from data.SAVED that hold.

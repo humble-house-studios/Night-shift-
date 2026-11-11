@@ -52,6 +52,15 @@ CAST = {
     "printy": ("am_echo", 0.98, "en-us", "asetrate=24000*1.08,aresample=24000,atempo=0.926,acrusher=bits=7:mode=log:mix=0.3,flanger=delay=1:depth=1.5:speed=6"),
     # Smooth, polite, wrong: lower, down a phone line, with a long tail.
     "manager": ("am_fenrir", 0.9, "en-us", "asetrate=24000*0.88,aresample=24000,atempo=1.136," + PHONE + ",aecho=0.8:0.6:60|140:0.3|0.18"),
+    # Marge: clipped, brisk, a floor manager mid-stride.
+    "marge": ([("af_sarah", 0.5), ("af_kore", 0.5)], 1.05, "en-us", ""),
+    # Chad: a bro on a laggy video call from his boat.
+    "chad": ("am_adam", 1.06, "en-us", "highpass=f=200,lowpass=f=5000,acrusher=bits=10:mix=0.25"),
+    # Brenda from HR: bright, sweet, too much.
+    "brenda": ("af_bella", 1.08, "en-us", "asetrate=24000*1.04,aresample=24000,atempo=0.962"),
+    # The board: four suits speaking as one, slightly out of sync.
+    "board": ([("am_onyx", 0.5), ("am_michael", 0.3), ("af_alloy", 0.2)], 0.86, "en-us",
+              "chorus=0.6:0.9:45|62|80:0.45|0.4|0.35:0.25|0.32|0.4:2|2.4|1.7,asetrate=24000*0.92,aresample=24000,atempo=1.087"),
     # A whispering coffee maker.
     "coffee": ("af_nicole", 0.85, "en-us", "asetrate=24000*0.82,aresample=24000,atempo=1.22,aecho=0.8:0.7:50:0.35"),
 }

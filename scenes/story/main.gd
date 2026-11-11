@@ -81,6 +81,13 @@ var _end: Control
 var _end_title: Label
 var _end_lines: Label
 var _end_btn: Button
+var _roll: VBoxContainer
+var _roll_t := 0.0
+var _roll_len := 1.0
+var _heaven: AudioStreamPlayer
+var _marge_t := 0.0
+var _marge_walks := true
+var _marge_step := 0.0
 var _inset := Vector4.ZERO
 
 # Night effects.
@@ -155,17 +162,33 @@ func _build_world() -> void:
 	_camera.current = true
 
 
+## A tap spot in world space: [name, focus, view, person, floor]. Floors two
+## and three are built off along x; Marge's spot walks with her.
 func _spot(id: String) -> Array:
 	var s: Array = Night.SPOTS[id].duplicate()
+	var o: Vector3 = Office.ORIGIN[s[4]]
+	s[1] += o
+	s[2] += o
 	if id == "dale" and story.has("dale_going") and office.people.has("dale"):
 		s[1] = Vector3(-2.3, 1.62, -0.5)
 		s[2] = Vector3(-1.2, 1.55, -0.1)
+	if id == "marge" and office.people.has("marge"):
+		var h: Node3D = office.people.marge.holder
+		var at := h.global_position
+		var sat: bool = office.people.marge.get("sat", false)
+		s[1] = at + Vector3(0, 1.05 if sat else 1.6, 0)
+		var toward := (o + Vector3(0, 0, 0.5) - at)
+		toward.y = 0.0
+		s[2] = s[1] + toward.normalized() * 1.25 + Vector3(0, 0.0 if sat else -0.05, 0)
+		s[2].y = 1.45
 	return s
 
 
 func _spot_name(id: String) -> String:
 	if id == "wendy" and story.has("wendy_named"):
 		return "WENDY"
+	if id == "ceo" and story.has("met_ceo"):
+		return "THE EMPTY SUIT"
 	return Night.SPOTS[id][0]
 
 
@@ -347,40 +370,31 @@ func _build_title() -> void:
 	_title.setup(self)
 
 
+## The credits: a roll that scrolls up the screen over the last shot (the
+## wheat field, or the boardroom if you took the chair), then PLAY AGAIN.
 func _build_end() -> void:
 	_end = Control.new()
-	_end.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_end.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_end.clip_contents = true
+	_end.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_end.visible = false
 	add_child(_end)
 	var shade := ColorRect.new()
 	shade.name = "Shade"
-	shade.color = Color(0, 0, 0, 0.55)
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.color = Color(0, 0, 0, 0.0)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_end.add_child(shade)
-	var holder := CenterContainer.new()
-	holder.name = "Stack"
-	_end.add_child(holder)
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _style(Color(0.03, 0.02, 0.04, 0.78), Color(0.95, 0.75, 0.4, 0.6), 3, 34))
-	holder.add_child(panel)
-	var v := VBoxContainer.new()
-	v.name = "Lines"
-	v.add_theme_constant_override("separation", 22)
-	panel.add_child(v)
+	_roll = VBoxContainer.new()
+	_roll.add_theme_constant_override("separation", 14)
+	_roll.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_end.add_child(_roll)
 	_end_title = _label(TITLE, 64, Color(1.0, 0.82, 0.5))
-	_end_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_end_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(_end_title)
-	_end_lines = _label(BODY, 34, Color(0.96, 0.94, 0.9))
-	_end_lines.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_end_lines.add_theme_constant_override("line_spacing", 6)
-	_end_lines.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
-	_end_lines.add_theme_constant_override("outline_size", 6)
-	v.add_child(_end_lines)
+	_end_lines = _label(BODY, 34)
 	_end_btn = _button("WORK ANOTHER NIGHT", 32)
 	_end_btn.pressed.connect(_new_night)
 	_end_btn.visible = false
-	v.add_child(_end_btn)
+	_end.add_child(_end_btn)
 
 
 ## Lay everything out for the screen's shape (upright phone or sideways/PC),
@@ -421,13 +435,16 @@ func _layout() -> void:
 	_card.custom_minimum_size = Vector2(cw, 0)
 	_card.size = Vector2(cw, 0)
 	_card.position = (size - _card.get_combined_minimum_size()) * 0.5
-	var es: Control = _end.get_node("Stack")
-	es.position = Vector2(l, t)
-	es.size = Vector2(r - l, b - t)
-	var ew := minf(640.0, r - l) - 68.0
-	_end_lines.custom_minimum_size = Vector2(ew, 0)
-	_end_title.custom_minimum_size = Vector2(ew, 0)
-	_end_btn.custom_minimum_size = Vector2(ew, 88)
+	var ew := minf(620.0, r - l)
+	_roll.custom_minimum_size = Vector2(ew, 0)
+	_roll.size.x = ew
+	_roll.position.x = (size.x - ew) * 0.5
+	for c in _roll.get_children():
+		if c is Label and c.autowrap_mode != TextServer.AUTOWRAP_OFF:
+			c.custom_minimum_size.x = ew
+	_end_btn.size = Vector2(minf(560.0, r - l), 88)
+	_end_btn.position = Vector2((size.x - _end_btn.size.x) * 0.5, b - 110)
+	var es: Control = _end
 
 
 # ---------------------------------------------------------------- sound
@@ -455,6 +472,7 @@ func _build_sound() -> void:
 	_score = AudioStreamPlayer.new()
 	_score.volume_db = -60.0
 	add_child(_score)
+	_heaven = _player_for("res://audio/heaven.ogg", -4.0, false)
 	_blip = _player_for("res://audio/blip.wav", -14.0)
 	_blip.max_polyphony = 3
 	_voice = AudioStreamPlayer.new()
@@ -578,9 +596,10 @@ func _begin() -> void:
 		office.screen(id)
 	_menu.visible = false
 	_apply_story_state()
-	_player.position = START
+	_player.position = START if story.act() == 1 else _arrival(story.act())
 	_yaw = 0.0
-	_pitch = -0.2
+	_pitch = -0.2 if story.act() == 1 else -0.05
+	_camera.global_transform = Transform3D(Basis(Vector3.UP, _yaw) * Basis(Vector3.RIGHT, _pitch), _player.global_position + Vector3(0, EYE, 0))
 	_state = WALK
 	_cue("late" if story.has("blackout_done") else "night")
 	_update_hud()
@@ -591,8 +610,21 @@ func _begin() -> void:
 func _apply_story_state() -> void:
 	office.set_night(1.0)
 	office.set_lights(1.0)
+	if story.has("act1_turn"):
+		_turn1_visuals()
 	if story.has("blackout_done"):
-		_after_blackout()
+		office.floor2_dark(true)
+		_marge_walks = false
+	if story.has("marge_saved"):
+		office.marge_sit()
+	if story.has("chad_saved"):
+		office.chad_state("left")
+	elif story.has("blackout_done"):
+		office.chad_state("clear")
+	if story.has("met_ceo"):
+		office.ceo_chair.rotation.y = 0.0
+	if story.has("dale_here"):
+		office.dale_arrives()
 	if story.has("kip_free"):
 		_kip_frozen = false
 	if story.has("dale_going"):
@@ -603,9 +635,9 @@ func _apply_story_state() -> void:
 
 func _next_auto() -> void:
 	var id := story.auto()
-	if id == "blackout":
-		_talk_with = ""
-		_glide(_talk_view("phone"), id)
+	if id == "dale_arrives":
+		_talk_with = "dale3"
+		_glide(_talk_view("dale3"), id)
 	elif id != "":
 		_talk("", id)
 
@@ -759,7 +791,7 @@ func _end_talk() -> void:
 	story.save()
 	_update_hud()
 	if _ending != "":
-		_show_ending()
+		_show_credits()
 		return
 	if _queue.size() > 0:
 		var q: Callable = _queue.pop_front()
@@ -825,48 +857,96 @@ func _event(ev: String) -> void:
 		"loop":
 			_fade_to(1.0, 2.2)
 			_play("lift_doors", -4.0)
-		"blackout":
+		"turn1":
 			_blackout = 1.0
+			_shake = 0.5
+			_play("thump", -4.0, 0.5)
+			_turn1_visuals()
+			_kip_frozen = not story.has("kip_free")
+			_printing = 3.0
+		"blackout":
 			_shake = 0.8
 			_play("tapestop", -2.0)
 			_play("thump", 0.0, 0.4)
+			office.floor2_dark(true)
+			_marge_walks = false
 			_score.stop()
 			_cue("late")
-			_after_blackout()
 		"after_blackout":
-			_kip_frozen = not story.has("kip_free")
-			_printing = 3.0
+			_shake = 0.3
+		"ride2", "ride3":
+			_travel(2 if ev == "ride2" else 3)
+		"act2", "act3":
+			_act_card(ev)
+		"marge_sit":
+			office.marge_sit()
+			_play("creak", -10.0, 0.7)
+		"chad_clear":
+			office.chad_state("clear")
+			_play("choice", -8.0, 1.4)
+		"chad_leave":
+			office.chad_state("left")
+			_play("lift_ding", -10.0, 1.5)
+		"brenda_free":
+			_play("shimmer", -10.0, 0.8)
+		"ceo_turn":
+			office.ceo_turn()
+			_play("creak", -6.0, 0.5)
+		"dale_arrives":
+			office.dale_arrives()
+			_play("thump", -6.0, 1.2)
+			_play("lift_doors", -8.0, 0.7)
+		"roof":
+			_ending = "field"
 		"finale":
-			for id in office.screen_ids():
-				office.screen(id, "• •\n‿", Color(1.0, 0.3, 0.25))
+			_play("ring", -3.0)
+			_shake = 0.3
 		"end_bad":
 			_ending = "bad"
 			_play("wrong", -2.0, 0.7)
-			for id in office.screen_ids():
-				office.screen(id, "WELCOME,\nMANAGER", Color(1.0, 0.25, 0.2))
 		"dawn":
 			_dawn = 0.0
 			_fade_score(-60.0, 5.0)
 			_play("lift_ding", -2.0)
-			var eye := Vector3(-0.2, 1.5, 1.7)
+			var o: Vector3 = Office.ORIGIN[3]
+			var eye := o + Vector3(1.6, 1.5, 0.6)
 			_glide_from = _camera.global_transform
-			_glide_to = Transform3D(Basis.looking_at(Vector3(-3.5, 1.4, -0.6) - eye, Vector3.UP), eye)
+			_glide_to = Transform3D(Basis.looking_at(o + Vector3(-0.6, 1.5, -5.0) - eye, Vector3.UP), eye)
 			_glide_t = 0.0
 			_glide_len = 7.0
-		"epilogue":
-			_ending = "good"
 	_set_printy_face()
 
 
-## The sunrise epilogue, one page per person: out with you, or still here.
+## Where the elevator lets you out on a floor.
+func _arrival(floor: int) -> Vector3:
+	return Office.ORIGIN[floor] + Vector3(0, 0, 3.8)
+
+
+## Up a floor: the doors shut, the screen goes dark, the counter ticks, ding,
+## and you're standing in the new floor's elevator doorway.
+func _travel(floor: int) -> void:
+	_play("lift_doors", -4.0)
+	_fade.color.a = 1.0
+	var o := _arrival(floor)
+	_player.global_position = o
+	_glide_t = 1.0
+	_camera.global_transform = Transform3D(Basis.looking_at(Vector3(0, -0.06, -1), Vector3.UP), o + Vector3(0, EYE, 0))
+	var tw := create_tween()
+	tw.tween_interval(1.2)
+	tw.tween_callback(func(): _play("lift_ding", -4.0))
+	tw.tween_property(_fade, "color:a", 0.0, 1.6)
+
+
+func _act_card(ev: String) -> void:
+	var act := 2 if ev == "act2" else 3
+	_toast_show(Night.ACT_NAMES[act])
+	_toast_t = 5.0
+	if act == 3:
+		_cue("late")
+
+
 func _epilogue_pages() -> Array:
-	var out := []
-	var saved := story.saved()
-	for id in ["wendy", "kip", "dale", "printy"]:
-		out.append(["narr", Night.EPILOGUE[id] if saved.has(id) else Night.LEFT[id]])
-	if story.has("coffee_friend"):
-		out.append(["narr", Night.COFFEE_BYE])
-	return out
+	return []
 
 
 func _item_toast() -> String:
@@ -877,8 +957,8 @@ func _item_toast() -> String:
 	return "GOT IT  ·  %d OF 3" % got
 
 
-## The night after 3:33: the screens stay red, the lights stay low.
-func _after_blackout() -> void:
+## Floor one after 1:11: the screens stay red, the lights stay low.
+func _turn1_visuals() -> void:
 	for id in office.screen_ids():
 		if id != "printy":
 			office.screen(id, ":)" if id != "kip" else "WELCOME TO\nHUMBLE HOUSE!\n\nQUESTION 4", Color(1.0, 0.25, 0.2))
@@ -896,7 +976,7 @@ func _set_printy_face() -> void:
 		face = "^_^"
 	elif _printing > 0.0:
 		face = ">_<"
-	elif story.has("blackout_done"):
+	elif story.has("act1_turn"):
 		face = "O_O"
 	office.screen("printy", face)
 
@@ -916,6 +996,7 @@ func _update_hud() -> void:
 	office.set_time(story.clock)
 	var lines := []
 	if story.has("intro_done") and not story.has("ended"):
+		lines.append("FLOOR %d" % story.act())
 		for g in story.goals():
 			lines.append(("[X] " if g[1] else "[ ] ") + g[0])
 	_goals.text = "\n".join(lines)
@@ -941,42 +1022,118 @@ func _open_menu() -> void:
 
 # ---------------------------------------------------------------- ending
 
-func _show_ending() -> void:
+## Up past the roof: a white-out, then the wheat field, the people you got
+## out standing in it, a dream-pop track and the credits.
+func _to_field() -> void:
+	_fade.color = Color(1.0, 0.97, 0.9, 1.0)
+	office.field_cast(story.saved(), story.has("coffee_friend"))
+	_world_box.material = _title._post
+	_title._post.set_shader_parameter("flash", 0.0)
+	_score.stop()
+	_music.stop()
+	_drone.stop()
+	_amb.stop()
+	_heaven.play()
+	_camera.far = 200.0
+	_field_cam(0.0)
+	var tw := create_tween()
+	tw.tween_interval(0.4)
+	tw.tween_property(_fade, "color:a", 0.0, 3.5)
+	tw.tween_callback(func(): _fade.color = Color(0, 0, 0, 0))
+
+
+## The camera in the field: low in the wheat, drifting toward the group,
+## then craning up into the sky as the credits finish.
+func _field_cam(t: float) -> void:
+	var o: Vector3 = Office.ORIGIN[4]
+	var k := clampf(t / 70.0, 0.0, 1.0)
+	var e := k * k * (3.0 - 2.0 * k)
+	var eye := o + Vector3(sin(t * 0.05) * 0.6, lerpf(0.85, 1.35, e), lerpf(9.0, 1.2, e))
+	var up := clampf((t - 55.0) / 40.0, 0.0, 1.0)
+	up = up * up * (3.0 - 2.0 * up)
+	var look := (o + Vector3(0, 1.25, -4.5)).lerp(o + Vector3(6, 22, -40), up)
+	eye.y += up * 1.5
+	_camera.global_transform = Transform3D(Basis.looking_at(look - eye, Vector3.UP), eye)
+
+
+func _roll_line(text: String, font: Font, size: int, col: Color, wrap := true, gap := 0) -> void:
+	if gap > 0:
+		var g := Control.new()
+		g.custom_minimum_size = Vector2(0, gap)
+		_roll.add_child(g)
+	var l := _label(font, size, col)
+	l.text = text
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.55))
+	l.add_theme_constant_override("outline_size", 8)
+	if wrap:
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_roll.add_child(l)
+
+
+## Roll the credits: over the wheat field (you said no), or over the
+## boardroom (you took the chair).
+func _show_credits() -> void:
 	_state = ENDING
 	_update_hud()
 	_box.visible = false
 	_hint.visible = false
-	var lines := []
-	if _ending == "bad":
-		_end_title.text = "ENDING:\nPROMOTED"
-		_end_title.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3))
-		_end.get_node("Shade").color = Color(0.12, 0.0, 0.0, 0.7)
-		lines.append("The night shift has a new manager. The phones will ring on time.")
-		lines.append("Wendy, Kip, Dale and the printer are still on the night shift. So are you. Forever, probably.")
-		lines.append("There's another way out. You'd have to say no.")
-	else:
-		var saved := story.saved()
-		_end_title.text = "CLOCKED OUT"
-		_end_title.add_theme_color_override("font_color", Color(1.0, 0.82, 0.45))
-		_end.get_node("Shade").color = Color(0.05, 0.02, 0.0, 0.25)
-		var names := {"wendy": "Wendy", "kip": "Kip", "dale": "Dale", "printy": "Printy"}
-		var got := []
+	for c in _roll.get_children():
+		c.queue_free()
+	var good := _ending == "field"
+	var gold := Color(1.0, 0.9, 0.62)
+	var white := Color(1, 1, 1)
+	var soft := Color(1.0, 0.97, 0.9, 0.92)
+	_roll_line("NIGHT\nSHIFT", TITLE, 120, Color(1.0, 0.55, 0.3), false)
+	_roll_line("CLOCKED OUT" if good else "ENDING: PROMOTED", PIXEL, 26, gold if good else Color(1.0, 0.35, 0.3), false, 10)
+	var saved := story.saved()
+	if good:
+		_roll_line("6:00 AM. Past the top floor, the elevator opened on a field.", BODY, 30, soft, true, 30)
 		for id in saved:
-			got.append(names[id])
-		lines.append("6:00 AM. You got %d of 4 off the night shift." % saved.size())
-		if not got.is_empty():
-			lines.append("Out with you: " + ", ".join(got) + ".")
-		if saved.size() < 4:
-			lines.append("Somebody's still waiting for someone to ask the right question.")
-		lines.append(Night.LAST)
-	_end_lines.text = "\n\n".join(lines)
-	_end_lines.visible_characters = 0
+			_roll_line(Night.NAMES[id][0], PIXEL, 26, gold, false, 46)
+			_roll_line(Night.NAMES[id][1], BODY, 26, Color(1, 1, 1, 0.75))
+			_roll_line(Night.EPILOGUE[id], BODY, 30, soft)
+		if story.has("coffee_friend"):
+			_roll_line(Night.COFFEE_BYE, BODY, 30, soft, true, 30)
+		var left := []
+		for s2 in Night.SAVED:
+			if not saved.has(s2[0]):
+				left.append(Night.LEFT[s2[0]])
+		if not left.is_empty():
+			_roll_line("STILL ON THE NIGHT SHIFT", PIXEL, 22, Color(0.85, 0.85, 1.0), false, 60)
+			for line in left:
+				_roll_line(line, BODY, 28, Color(0.9, 0.9, 1.0, 0.8))
+		_roll_line("You got %d of %d off the night shift." % [saved.size(), Night.SAVED.size()], BODY, 30, white, true, 50)
+	else:
+		_roll_line("The night shift has a new manager. The phones will ring on time.", BODY, 30, soft, true, 30)
+		_roll_line("There was another way out. You'd have had to say no.", BODY, 30, soft, true, 20)
+	_roll_line("STARRING", PIXEL, 20, gold, false, 70)
+	_roll_line("YOU", TITLE, 64, white, false)
+	for id in ["dale", "wendy", "kip", "printy", "marge", "chad", "brenda"]:
+		_roll_line(Night.NAMES[id][0], PIXEL, 20, white, false, 18)
+	_roll_line("THE BOARD   THE NIGHT MANAGER   THE COFFEE MAKER", PIXEL, 16, Color(1, 1, 1, 0.7), true, 18)
+	_roll_line("CREATED BY", PIXEL, 20, gold, false, 70)
+	_roll_line("SAMUEL", TITLE, 56, white, false)
+	_roll_line("HUMBLE HOUSE GAMES", PIXEL, 20, white, false, 8)
+	_roll_line(_credits_text(), BODY, 26, soft, true, 60)
+	_roll_line(Night.LAST, BODY, 34, white, true, 90)
+	_roll_line("THE END", TITLE, 72, gold, false, 60)
 	_end.visible = true
-	_end.modulate.a = 0.0
-	var tw := create_tween()
-	tw.tween_interval(3.5 if _ending == "good" else 1.0)
-	tw.tween_property(_end, "modulate:a", 1.0, 2.0)
+	_end.modulate.a = 1.0
+	_end_btn.visible = false
+	_end.get_node("Shade").color = Color(1.0, 0.95, 0.85, 0.0) if good else Color(0.1, 0.0, 0.0, 0.45)
+	_roll_t = 0.0
 	_layout()
+	await get_tree().process_frame
+	_roll.size.y = 0
+	await get_tree().process_frame
+	_roll_len = _roll.get_combined_minimum_size().y
+	_roll.position.y = get_viewport_rect().size.y
+	if good:
+		_to_field()
+	else:
+		_fade_score(-60.0, 4.0)
+		_cue("late")
 
 
 # ---------------------------------------------------------------- frame
@@ -991,12 +1148,16 @@ func _process(delta: float) -> void:
 		_toast_t -= delta
 		_toast.modulate.a = clampf(_toast_t, 0.0, 1.0)
 	_toast.visible = _toast_t > 0.0
-	if _state == ENDING and _end.modulate.a > 0.9:
-		var n := _end_lines.text.length()
-		if _end_lines.visible_characters >= 0:
-			_end_lines.visible_characters += maxi(1, int(70.0 * delta))
-			if _end_lines.visible_characters >= n:
-				_end_lines.visible_characters = -1
+	if _state == ENDING and _end.visible:
+		_roll_t += delta
+		var vh := get_viewport_rect().size.y
+		var speed := 52.0 if _portrait() else 44.0
+		_roll.position.y = vh - maxf(0.0, _roll_t - 2.5) * speed
+		# Stop with THE END on screen, then offer another night.
+		var stop := vh * 0.5 - _roll_len + 60.0
+		if _roll.position.y <= stop:
+			_roll.position.y = stop
+			if not _end_btn.visible:
 				_end_btn.visible = true
 				_layout()
 	_tags.queue_redraw()
@@ -1046,7 +1207,9 @@ func _tick_camera(delta: float) -> void:
 		WALK:
 			_tick_walk(delta)
 		ENDING:
-			if _ending == "good":
+			if _ending == "field":
+				_field_cam(_roll_t)
+			elif _ending == "good":
 				var eye := Vector3(-0.6, 1.5, 1.4)
 				var look := Vector3(-3.5, 1.4, -0.6)
 				var target := Transform3D(Basis.looking_at(look - eye, Vector3.UP), eye)
@@ -1129,15 +1292,48 @@ func _tick_people(delta: float) -> void:
 		var blink := not frozen and fmod(_t + id.length() * 1.3, 4.1) < 0.12
 		for e in p.eyes:
 			e.scale.y = 0.15 if blink else (1.25 if frozen else 1.0)
-		var speaking: bool = (_typing or _voice.playing) and _state == TALK and _speaker.begins_with(id)
+		var board: bool = id.begins_with("board_")
+		var who: String = "board" if board else id.trim_prefix("field_")
+		var speaking: bool = (_typing or _voice.playing) and _state == TALK and _speaker.begins_with(who)
 		var open := 0.6 + 0.6 * absf(sin(_t * 13.0)) if speaking or (frozen and _state != TALK) else 0.25
 		p.mouth.scale.y = lerpf(p.mouth.scale.y, open, minf(1.0, delta * 20.0))
+		# Brenda's smile doesn't move (until someone asks if she's okay).
+		if id == "brenda" and not story.has("brenda_saved"):
+			p.mouth.scale = Vector3(1.9, 0.55 if not speaking else 0.55 + 0.3 * absf(sin(_t * 13.0)), 1.0)
+		elif id == "brenda":
+			p.mouth.scale.x = 1.0
+		# The board never blinks.
+		if board:
+			for e in p.eyes:
+				e.scale.y = 1.0
+
+
+## Marge walks her loop on floor two (until she stops, at 3:33), her steps
+## carrying across the floor.
+func _tick_marge(delta: float) -> void:
+	if not office.people.has("marge") or office.people.marge.get("sat", false):
+		return
+	var walking := _marge_walks and not (_state == TALK and _talk_with == "marge") and not (_state == GLIDING and _talk_with == "marge")
+	if not walking:
+		return
+	_marge_t += delta * 0.85
+	var at: Array = office.marge_at(_marge_t)
+	var h: Node3D = office.people.marge.holder
+	h.position = at[0]
+	h.rotation.y = lerp_angle(h.rotation.y, at[1], minf(1.0, delta * 6.0))
+	office.people.marge.body.position.y = absf(sin(_marge_t * 5.5)) * 0.02
+	if story.act() == 2:
+		_marge_step -= delta
+		if _marge_step <= 0.0:
+			_marge_step = 0.58
+			var d := _camera.global_position.distance_to(h.global_position)
+			_play("step_1" if randf() < 0.5 else "step_2", lerpf(-12.0, -34.0, clampf(d / 9.0, 0.0, 1.0)), randf_range(0.85, 0.95))
 
 
 func _tick_effects(delta: float) -> void:
 	# Lights: low and red after 3:33, flickers, and the dawn coming up.
 	var lights := 1.0
-	if story.has("blackout_done"):
+	if story.has("act1_turn"):
 		lights = 0.55
 	if _blackout > 0.0:
 		_blackout = maxf(0.0, _blackout - delta * 0.4)
@@ -1149,19 +1345,14 @@ func _tick_effects(delta: float) -> void:
 		_dawn = minf(1.0, _dawn + delta / 9.0)
 		var k := _dawn * _dawn * (3.0 - 2.0 * _dawn)
 		office.set_night(1.0 - k)
-		lights = lerpf(0.55, 1.0, k)
-		office.set_slot(4, Vector3(0.0, 1.2, -2.0), Color(0.45, 0.04, 0.03) * (1.0 - k))
-		office.set_slot(5, Vector3(2.6, 1.2, -0.9), Color(0.4, 0.03, 0.03) * (1.0 - k))
-		office.open_doors(clampf((_dawn - 0.5) * 2.0, 0.0, 1.0))
+		office.floor3_dawn(k)
 		if _dawn > 0.05 and not _music.playing:
 			_music.play()
 			_music.volume_db = -30.0
 		_music.volume_db = lerpf(-30.0, -8.0, k)
 		_drone.volume_db = lerpf(DRONE_DB, -60.0, k)
-		if _dawn > 0.15:
-			for id in office.screen_ids():
-				office.screen(id, "", Color(), true)
 	office.set_lights(lights)
+	_tick_marge(delta)
 	if _smile > 0.0:
 		_smile -= delta
 		for id in ["desk", "board"]:
@@ -1213,6 +1404,10 @@ func _draw_tags() -> void:
 
 
 func _available(id: String) -> bool:
+	if _state == ENDING or Night.SPOTS[id][4] != story.act():
+		return false
+	if id == "dale3" and not story.has("dale_here"):
+		return false
 	return story.entry(id) != ""
 
 
@@ -1281,10 +1476,7 @@ func _on_tap(pos: Vector2) -> void:
 		WALK:
 			_tap(pos)
 		ENDING:
-			if _end_lines.visible_characters >= 0:
-				_end_lines.visible_characters = -1
-				_end_btn.visible = true
-				_layout()
+			_roll_t += 6.0
 
 
 ## A tap while walking: the person or thing nearest the tap (by its spot on

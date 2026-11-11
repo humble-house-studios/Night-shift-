@@ -64,17 +64,14 @@ func talk(wants: Array = [], shots := false) -> void:
 
 
 func visit(id: String, wants: Array, shots := false) -> void:
+	if not main._available(id):
+		print("NOT AVAILABLE: ", id, " act ", main.story.act(), " entry ", main.story.entry(id))
 	main._talk(id, main.story.entry(id))
 	await wait(1.0)
 	if shots:
 		await shot("talk_" + id)
 	await talk(wants, shots)
 	await wait(0.4)
-	# A blackout can start by itself after a conversation.
-	if main._state == main.TALK:
-		await wait(2.0)
-		await shot("auto")
-		await talk(["Rule one", "Pull"], true)
 
 
 func _run() -> void:
@@ -95,24 +92,47 @@ func _run() -> void:
 	await talk(["Answer"], true)
 	await wait(0.5)
 	await shot("walk")
+	# ACT ONE
 	await visit("wendy", ["How long", "Why don't", "What's your name", "Nice to meet"], true)
-	await visit("kip", ["home"], true)
-	await visit("printy", ["Can I read", "think of"], true)
-	await visit("coffee", ["Thank you"], true)
-	await visit("dale", ["daughter", "let you work"], true)
+	await visit("kip", ["home"])
+	await visit("printy", ["Can I read", "think of"])
+	await visit("coffee", ["Thank you"])
+	await visit("dale", ["daughter", "upstairs", "let you work"], true)
 	await wait(1.0)
-	await shot("after_blackout")
+	await shot("turn1")
 	await visit("kip", ["KIP", "You passed"], true)
-	await visit("printy", ["someone stayed"], true)
-	await visit("wendy", ["Whose", "Promise"], true)
-	await visit("dale", ["founder", "Why do you stay", "Front row"], true)
-	await visit("board", [], true)
-	await visit("clock", ["Who were you", "clocking out"], true)
-	await wait(6.0)
-	await shot("dawn")
-	await wait(6.0)
-	await shot("ending")
-	var ok: bool = main.story.has("ending_good") and main.story.saved().size() == 4 and main._state == main.ENDING
+	await visit("printy", ["someone stayed"])
+	await visit("wendy", ["Whose", "Promise"])
+	await visit("elevator", ["Badge in"], true)
+	await wait(2.5)
+	await talk([], false)
+	await wait(1.0)
+	await shot("floor2")
+	# ACT TWO
+	await visit("marge", ["How long", "get back"], true)
+	await visit("chad", ["hear me"], true)
+	await visit("brenda", ["go home", "someone's waiting"], true)
+	await wait(1.0)
+	await talk(["Rule one"], true)
+	await shot("after_333")
+	await visit("marge", ["Sit down"], true)
+	await visit("chad", ["What were you", "Leave the meeting"], true)
+	await visit("brenda", ["Are you okay"], true)
+	await visit("elevator2", ["Card, sign-off"], true)
+	await wait(2.5)
+	await talk([], false)
+	await wait(1.0)
+	await shot("floor3")
+	# ACT THREE
+	await visit("board3", ["home", "The people"], true)
+	await visit("ceo", [], true)
+	await wait(1.5)
+	await talk([], true)
+	await visit("dale3", ["founder", "Why do you stay", "Front row", "Who were you", "coming with me", "ROOF"], true)
+	for i in 6:
+		await wait(9.0)
+		await shot("field_%d" % i)
+	var ok: bool = main.story.has("ending_good") and main.story.saved().size() == 7 and main._state == main.ENDING
 	print("PASS" if ok else "FAIL state=%s flags=%s" % [main._state, main.story.flags])
 	NightStory.wipe()
 	quit(0 if ok else 1)

@@ -1,17 +1,97 @@
 [
 	{
+		"file": "10fa3d263ca8",
+		"text": "You badge in. The reader beeps. You key 0-6-0-0. The card goes in the slot and comes back stamped, in red: PROMOTED.",
+		"who": "narr"
+	},
+	{
+		"file": "1948bff7d06a",
+		"text": "The doors open. Behind you, the floor goes quiet, like the whole room is watching you go.",
+		"who": "narr"
+	},
+	{
+		"file": "4b0b2dcd4a4e",
+		"text": "Don't get comfortable up there, kid. Up there, comfortable is how they keep you.",
+		"who": "wendy"
+	},
+	{
+		"file": "53a5ba9ba3ad",
+		"text": "Floor two! Look at you. Tell Marge I said hi. Actually, don't. She'll want to walk and talk.",
+		"who": "dale"
+	},
+	{
+		"file": "2127f95fbbaf",
+		"text": "The card reader goes green. The sign-off scrolls by on a tiny screen. The form slides into a slot and comes back stamped: APPROVED. RELUCTANTLY.",
+		"who": "narr"
+	},
+	{
+		"file": "78298a0bc786",
+		"text": "The gold doors open. The inside is leather and wood and smells like a new car that's afraid of you.",
+		"who": "narr"
+	},
+	{
+		"file": "697602c9907a",
+		"text": "Mind the top, kid. Nobody ever came back down to tell us what it's like.",
+		"who": "marge"
+	},
+	{
+		"file": "75e5334b8f85",
+		"text": "ACT TWO. MIDDLE MANAGEMENT.",
+		"who": "narr"
+	},
+	{
+		"file": "fe3fd33df9fc",
+		"text": "Floor two. A cubicle farm under humming tubes of light. Forty desks. Forty phones. Nobody at any of them.",
+		"who": "narr"
+	},
+	{
+		"file": "c2768f340c6b",
+		"text": "Somewhere between the rows, footsteps. Even. Patient. They don't stop.",
+		"who": "narr"
+	},
+	{
+		"file": "9900d74c9cda",
+		"text": "Welcome to middle management! Up here, nobody goes home until somebody signs off. Nobody has signed off since 2019.",
+		"who": "manager"
+	},
+	{
+		"file": "d9b7daec228e",
+		"text": "To reach the executive floor, the elevator requires a KEYCARD, a SIGN-OFF, and FORM 6-0-0. Have a synergistic night!",
+		"who": "manager"
+	},
+	{
+		"file": "8302c8a9c6e7",
+		"text": "ACT THREE. THE TOP.",
+		"who": "narr"
+	},
+	{
+		"file": "6077e6f24d9a",
+		"text": "Mahogany. Red carpet. A boardroom table long enough to land a plane on. A wall of window over the dark bay.",
+		"who": "narr"
+	},
+	{
+		"file": "1f8c6936be4a",
+		"text": "Four people in suits sit around the table. They don't move. At the far end, a big leather chair faces the window. Someone is sitting in it.",
+		"who": "narr"
+	},
+	{
+		"file": "17d49f0bd936",
+		"text": "The board is in session. The board will now hear the candidate. Please, take a seat. Any seat. You'll be here a while.",
+		"who": "manager"
+	},
+	{
 		"file": "1a32961c3a87",
 		"text": "3:33 AM.",
 		"who": "narr"
 	},
 	{
-		"file": "433f13c1c325",
-		"text": "The monitors die all at once. Then they come back red. Every one of them shows the same smiling face.",
+		"file": "80f1dc92c6f3",
+		"text": "Every light on the floor goes out at once. The forty monitors come back red, all showing the same smiling face.",
 		"who": "narr"
 	},
 	{
-		"file": "515c88a2cc0b",
-		"text": "The phone on your desk rings.",
+		"file": "e6141ecca04e",
+		"text": "Then every phone on every desk rings. Forty phones. All at once.",
 		"who": "narr"
 	},
 	{
@@ -20,23 +100,23 @@
 		"who": "manager"
 	},
 	{
-		"file": "f765c596de81",
-		"text": "Your reflection in the dark monitor holds the phone a beat longer than you do.",
+		"file": "20cd89148742",
+		"text": "In the dark monitor, your reflection holds the phone a beat longer than you do.",
 		"who": "narr"
 	},
 	{
-		"file": "4e0d5401da9c",
-		"text": "Then Wendy's mop handle comes down on the cradle. CLACK.",
+		"file": "bf4e4926f0d0",
+		"text": "Then a red blazer swings past and a hand comes down on the cradle. CLACK. It's Marge. She stopped walking to do it.",
 		"who": "narr"
 	},
 	{
-		"file": "37e8013d24a7",
-		"text": "Hands off the phone, kid. I've lost enough new hires to that thing. Go. Finish up.",
-		"who": "wendy"
+		"file": "6d586a1ae192",
+		"text": "Not on my floor.",
+		"who": "marge"
 	},
 	{
-		"file": "12dd4ac86644",
-		"text": "You yank the cord out of the wall. The phone keeps ringing for one more ring anyway. Then it stops, like it's sulking.",
+		"file": "f43ed5361644",
+		"text": "You yank the nearest cord. The other thirty-nine keep ringing a moment longer, out of spite. Then silence.",
 		"who": "narr"
 	},
 	{
@@ -45,34 +125,49 @@
 		"who": "narr"
 	},
 	{
-		"file": "b8d68150fa8d",
-		"text": "THE BUILD IS NOT APPROVED. NOBODY GOES HOME.",
+		"file": "1b7230783bb9",
+		"text": "THE BUILD IS NOT APPROVED. NOBODY SIGNS OFF. NOBODY GOES HOME.",
 		"who": "manager"
 	},
 	{
-		"file": "204bda42473b",
-		"text": "Across the room, Kip has gone very still. The copier starts printing by itself. Dale's lamp is the only warm light left.",
+		"file": "affb4add52c5",
+		"text": "And then, for the first time in twenty-one years, the footsteps stop. Somewhere in the dark, the TV on the cart blinks: CONNECTED.",
 		"who": "narr"
 	},
 	{
-		"file": "6c7f95ed5dbb",
-		"text": "Okay. Timecard, signature, code. Then I am out of here. And I'm not leaving them here either.",
+		"file": "d65a5d4b1139",
+		"text": "Keycard. Sign-off. Form. Then up. And I'm not leaving them here either.",
 		"who": "you"
 	},
 	{
-		"file": "6ac39fa812c7",
-		"text": "It rings again.",
+		"file": "109ce1c7ea92",
+		"text": "They ring again. The nearest one is right by your hand.",
 		"who": "narr"
 	},
 	{
-		"file": "288cf20b4786",
-		"text": "It rings a third time.",
+		"file": "451d7a3eb9e3",
+		"text": "They ring a third time.",
 		"who": "narr"
 	},
 	{
-		"file": "8b14eab448b6",
-		"text": "You let it ring. The ringing stops mid-ring, annoyed.",
+		"file": "e47b8f1fd39e",
+		"text": "You let them ring. Forty phones stop mid-ring, all at once, annoyed.",
 		"who": "narr"
+	},
+	{
+		"file": "2c68b6d7a471",
+		"text": "THE BOARD HAS HEARD THE CANDIDATE. THE BOARD AWAITS THE CHIEF EXECUTIVE. THE CHIEF EXECUTIVE IS ALWAYS ABOUT TO ARRIVE.",
+		"who": "board"
+	},
+	{
+		"file": "3009303fc281",
+		"text": "Four heads turn toward you at exactly the same speed. Four mouths open together.",
+		"who": "narr"
+	},
+	{
+		"file": "7a052886f735",
+		"text": "STATE YOUR NAME. STATE YOUR TITLE. STATE YOUR VALUE.",
+		"who": "board"
 	},
 	{
 		"file": "c815c7933174",
@@ -83,6 +178,11 @@
 		"file": "896136728c42",
 		"text": "Nope. Nope nope nope.",
 		"who": "narr"
+	},
+	{
+		"file": "9fa10a3b57b8",
+		"text": "GOING HOME IS NOT A VALUE. QUESTION FOUR. WHAT IS THE COMPANY'S MOST VALUABLE ASSET?",
+		"who": "board"
 	},
 	{
 		"file": "892ee3bd580a",
@@ -100,8 +200,273 @@
 		"who": "narr"
 	},
 	{
-		"file": "11028dfd4bc5",
-		"text": "A grey punch clock by the elevator, with a keypad bolted on. A sticker: TIMECARD + MANAGER SIGNATURE + OVERRIDE CODE = HAVE A NICE DAY.",
+		"file": "7863f1c2fda4",
+		"text": "The four of them glitch, like a video tape chewing itself.",
+		"who": "narr"
+	},
+	{
+		"file": "b1d645c22200",
+		"text": "THAT. IS NOT. IN THE MINUTES.",
+		"who": "board"
+	},
+	{
+		"file": "d9809b7e27a8",
+		"text": "One of them, the one nearest you, whispers on his own, in a very different voice: \"...Gary?\"",
+		"who": "narr"
+	},
+	{
+		"file": "a6456cf645d1",
+		"text": "...",
+		"who": "board"
+	},
+	{
+		"file": "dde67644e225",
+		"text": "SYNERGY IS NOT AN ASSET. SYNERGY IS A FEELING. WE HAVE NOT HAD A FEELING SINCE 2001.",
+		"who": "board"
+	},
+	{
+		"file": "8710f3db239b",
+		"text": "CORRECT. YOU ARE AN EXCELLENT CANDIDATE. THE CHAIR IS WARM. THE CHAIR IS ALWAYS WARM.",
+		"who": "board"
+	},
+	{
+		"file": "3e2a4634dcea",
+		"text": "WE ARE THE BOARD. WE HAVE ALWAYS BEEN THE BOARD. WE WERE ORDERED FROM A CATALOGUE IN 2001. QUESTION FOUR. WHAT IS THE COMPANY'S MOST VALUABLE ASSET?",
+		"who": "board"
+	},
+	{
+		"file": "6493a6a5f9e7",
+		"text": "Hi again!! Still processing! Everything is in process! Always!",
+		"who": "brenda"
+	},
+	{
+		"file": "12f65dbc278f",
+		"text": "Of course!! Have a great night!!",
+		"who": "brenda"
+	},
+	{
+		"file": "c123d59c15e0",
+		"text": "The smile clicks back into place. It looks heavier than before.",
+		"who": "narr"
+	},
+	{
+		"file": "326638353fff",
+		"text": "Your form's all stamped! Go! Shoo! I'm practicing not smiling. It's hard!",
+		"who": "brenda"
+	},
+	{
+		"file": "bc0c00044abd",
+		"text": "Love that for you! That's a FORM 6-0-0. Request To Go Home. Just fill in the reason.",
+		"who": "brenda"
+	},
+	{
+		"file": "6f26672d95a2",
+		"text": "She slides a form across the desk. REASON FOR LEAVING: a line, very short.",
+		"who": "narr"
+	},
+	{
+		"file": "9bcaa88e0b00",
+		"text": "A glass office in the corner. A pink cardigan, a kitten poster that says HANG IN THERE, and a woman smiling so hard it looks like it hurts.",
+		"who": "narr"
+	},
+	{
+		"file": "5ecfa270c860",
+		"text": "Hi!! Brenda! HR! How can I help? Complaints? Concerns? Feelings? We have a form for that!",
+		"who": "brenda"
+	},
+	{
+		"file": "c47ac09f22a4",
+		"text": "The smile comes off. It's like watching someone take off heavy shoes. Underneath, she looks tired. And about ten years younger.",
+		"who": "narr"
+	},
+	{
+		"file": "ae992a3f5030",
+		"text": "No. No, I'm not. My sister's getting married on Saturday and I told her I couldn't come. Because of a quarterly review.",
+		"who": "brenda"
+	},
+	{
+		"file": "f355badc519f",
+		"text": "She takes a fresh FORM 6-0-0, writes fast, and stamps it twice. REASON FOR LEAVING: MY SISTER.",
+		"who": "narr"
+	},
+	{
+		"file": "21ab34840ff4",
+		"text": "There. One for you, one for me. Wow. That's the first form I ever filled out for myself.",
+		"who": "brenda"
+	},
+	{
+		"file": "a068299b96a6",
+		"text": "The smile falls right off.",
+		"who": "narr"
+	},
+	{
+		"file": "80c60a2e775c",
+		"text": "...No. But I think I'm going to my sister's wedding. Thank you for asking. Nobody asks.",
+		"who": "brenda"
+	},
+	{
+		"file": "47f9e02f675e",
+		"text": "Perfect! Now it just needs a stamp. And the stamp needs approval. And approval needs a quiet moment, which we don't have up here!",
+		"who": "brenda"
+	},
+	{
+		"file": "7c6f60096b4e",
+		"text": "Come back when things settle! Things always settle around three-thirty! Then they get much worse!",
+		"who": "brenda"
+	},
+	{
+		"file": "8c4bd2c5e19c",
+		"text": "My smile? Oh, it's great! It's been like this since a team-building retreat in 2016. It's very professional!",
+		"who": "brenda"
+	},
+	{
+		"file": "e961e0a7f140",
+		"text": "Her eyes are not smiling. Her eyes are asking for help, very politely.",
+		"who": "narr"
+	},
+	{
+		"file": "3568c4bfdf1e",
+		"text": "In the dark, Brenda's office lamp is still on. Her smile has slipped, just at one corner.",
+		"who": "narr"
+	},
+	{
+		"file": "6461a1432bc5",
+		"text": "Ha! Wow! Some night! I've stamped your form. It's ready. It's... ready.",
+		"who": "brenda"
+	},
+	{
+		"file": "faa5da8127e4",
+		"text": "Can I tell you something? Nobody has ever asked if HR is okay. It's not on any of the forms. I checked. I've checked every form.",
+		"who": "brenda"
+	},
+	{
+		"file": "e5be95039d9c",
+		"text": "The empty suit faces the room now. Somehow that's worse.",
+		"who": "narr"
+	},
+	{
+		"file": "9fd76195ab8a",
+		"text": "You walk the length of the table to the big chair by the window. You turn it around.",
+		"who": "narr"
+	},
+	{
+		"file": "c2458338fbf0",
+		"text": "It's an empty suit. A black suit on a coat hanger, propped up with a cushion, a tie knotted around nothing.",
+		"who": "narr"
+	},
+	{
+		"file": "0b8e6ff91344",
+		"text": "A brass plate on the chair says CHIEF EXECUTIVE. On the collar, a sticky note in purple ink: SAY NO FOR ME. —D.",
+		"who": "narr"
+	},
+	{
+		"file": "44a0b84c77cb",
+		"text": "Nobody has met the CEO... because there's nobody to meet.",
+		"who": "you"
+	},
+	{
+		"file": "cd50570f69d2",
+		"text": "—what I'm hear— —ing is— —bro—",
+		"who": "chad"
+	},
+	{
+		"file": "431f093131ff",
+		"text": "The TV says MEETING ENDED. For the first time in years, it's true.",
+		"who": "narr"
+	},
+	{
+		"file": "abc9e935c06a",
+		"text": "Bro— you're on mu— —circle back— —per my last— ...",
+		"who": "chad"
+	},
+	{
+		"file": "ca258306c489",
+		"text": "Frozen. The date in the corner of the call says MARCH 2019.",
+		"who": "narr"
+	},
+	{
+		"file": "4f0c64e1c9b9",
+		"text": "Leave the meeting. I can just... leave the meeting.",
+		"who": "chad"
+	},
+	{
+		"file": "9a945bc69b44",
+		"text": "Okay. Signing you off first, champ. Least I can do. SIGNED OFF: CHAD. There. Real signature. Not a bro one.",
+		"who": "chad"
+	},
+	{
+		"file": "bb8192b65dfa",
+		"text": "He reaches toward his screen. The call ends. For a second the TV shows a sunrise over water, then just a blue screen that says MEETING ENDED.",
+		"who": "narr"
+	},
+	{
+		"file": "8e47dfed9168",
+		"text": "...Can I? Huh. Leave meeting. Peace, champ.",
+		"who": "chad"
+	},
+	{
+		"file": "6600c9d74697",
+		"text": "MEETING ENDED.",
+		"who": "narr"
+	},
+	{
+		"file": "50c88e54e14d",
+		"text": "A TV on a wheeled cart. On it, a man in a vest on a sailboat, frozen mid-word. The caption: CHAD (VP, WORKING FROM HOME). RECONNECTING...",
+		"who": "narr"
+	},
+	{
+		"file": "34ec4f480d31",
+		"text": "So what I'm hearing is— is— i— hearing—",
+		"who": "chad"
+	},
+	{
+		"file": "f38e5a39c5a4",
+		"text": "He freezes again with his mouth open. The little spinning wheel spins.",
+		"who": "narr"
+	},
+	{
+		"file": "3e2fdf72d938",
+		"text": "You look for a power button. The TV's cord goes into the wall, and the wall goes somewhere much further down. It's not your button to push. Not yet.",
+		"who": "narr"
+	},
+	{
+		"file": "068a13421fae",
+		"text": "I was going to say: so what I'm hearing is... I want to go home.",
+		"who": "chad"
+	},
+	{
+		"file": "7225844c50ff",
+		"text": "I have two kids. They were eight and ten. I think they're teenagers now. I think one of them can drive.",
+		"who": "chad"
+	},
+	{
+		"file": "059ff5afcb09",
+		"text": "Right. Sure. Business. SIGNED OFF: CHAD.",
+		"who": "chad"
+	},
+	{
+		"file": "8b642787774b",
+		"text": "He stays on the call. Nobody has ever told him he's allowed to leave it.",
+		"who": "narr"
+	},
+	{
+		"file": "2dda2486b9cb",
+		"text": "The blackout rebooted the router. Chad's picture is crisp now. He's blinking. He looks at you, and he looks terrified.",
+		"who": "narr"
+	},
+	{
+		"file": "1cd8646dc483",
+		"text": "Oh my god. You can hear me? Like, actually? I've been on this call since March 2019.",
+		"who": "chad"
+	},
+	{
+		"file": "e25f55e8229b",
+		"text": "My boat drifted out of range during a quarterly sync. I froze. And everybody just... left the meeting. One by one. I watched them leave.",
+		"who": "chad"
+	},
+	{
+		"file": "aec72a13b709",
+		"text": "A grey punch clock by the elevator. It only punches IN. Somebody has scratched into the side with a key: OUT IS UP.",
 		"who": "narr"
 	},
 	{
@@ -160,13 +525,33 @@
 		"who": "dale"
 	},
 	{
+		"file": "949befa9e72b",
+		"text": "The stairwell door bangs open.",
+		"who": "narr"
+	},
+	{
+		"file": "aebb91565fbb",
+		"text": "Took the stairs. All of 'em. Thirty-one flights. Don't tell my cardiologist.",
+		"who": "dale"
+	},
+	{
+		"file": "aa60fff76fa1",
+		"text": "It's Dale. Red in the face, tie over one shoulder, a purple pen in his shirt pocket. He looks at the empty suit. He looks at you.",
+		"who": "narr"
+	},
+	{
+		"file": "b8ee2e48b254",
+		"text": "...Well. You found him, huh. Found me, I mean.",
+		"who": "dale"
+	},
+	{
 		"file": "565e3b43beb7",
 		"text": "Right. Business. Course.",
 		"who": "dale"
 	},
 	{
-		"file": "dc6b2f3c4ce6",
-		"text": "D. PRUITT, FOUNDER. He signs without looking up. The lamp hums.",
+		"file": "fd6af1c356c5",
+		"text": "D. PRUITT, FOUNDER. He signs without looking up.",
 		"who": "narr"
 	},
 	{
@@ -185,8 +570,8 @@
 		"who": "dale"
 	},
 	{
-		"file": "45e18c2d19ba",
-		"text": "You go on. I'm right behind you. Probably. Ha.",
+		"file": "a456065701a1",
+		"text": "Whatever he offers you, kid... I'm right here. For once.",
 		"who": "dale"
 	},
 	{
@@ -195,8 +580,8 @@
 		"who": "narr"
 	},
 	{
-		"file": "34df97cf187e",
-		"text": "...Garage in Burbank. Three beige computers and a dream. I had so much hair.",
+		"file": "4be23b743822",
+		"text": "Garage in Burbank. Three beige computers and a dream. I had so much hair.",
 		"who": "dale"
 	},
 	{
@@ -205,8 +590,8 @@
 		"who": "dale"
 	},
 	{
-		"file": "bb4387651753",
-		"text": "I couldn't do it. So I made a guy who could. A manager. A voice on the phone. Then I gave myself a desk in receivables and hid.",
+		"file": "98bf7362a2a8",
+		"text": "I couldn't do it. So I bought a suit with nobody in it, hired a voice on the phone to say the hard things, and gave myself a desk in receivables. And I hid.",
 		"who": "dale"
 	},
 	{
@@ -220,19 +605,14 @@
 		"who": "dale"
 	},
 	{
-		"file": "83a0e38402f5",
-		"text": "Gimme your timesheet. Founder's signature. Haven't used it in eleven years.",
+		"file": "b7a70da072d1",
+		"text": "Gimme your timecard. Founder's signature. Haven't used it in eleven years.",
 		"who": "dale"
 	},
 	{
-		"file": "9b7b83e4f218",
-		"text": "D. PRUITT, FOUNDER. The purple ink is a little shaky. He caps the pen and stands up for the first time all night.",
+		"file": "5de3ed5fdc4b",
+		"text": "D. PRUITT, FOUNDER. The purple ink is a little shaky. Then he signs a second card, the faded one with WENDY OKAFOR on it.",
 		"who": "narr"
-	},
-	{
-		"file": "14f06077cb8c",
-		"text": "Huh. My knees forgot how to do that.",
-		"who": "dale"
 	},
 	{
 		"file": "ea25708a8dd5",
@@ -245,13 +625,13 @@
 		"who": "dale"
 	},
 	{
-		"file": "f23c6b085ca3",
-		"text": "He signs your sheet anyway. D. PRUITT, FOUNDER. Then he turns the lamp a little toward himself and goes back to his receivables.",
+		"file": "f689ca9d2720",
+		"text": "He signs your card anyway. D. PRUITT, FOUNDER. Then he stares at the empty suit like it might help.",
 		"who": "narr"
 	},
 	{
-		"file": "45fee8b8f1ad",
-		"text": "He's every hard thing I didn't want to say. Turns out if you don't say 'em, they don't go away. They get a phone line.",
+		"file": "4bec31549042",
+		"text": "He's every hard thing I didn't want to say. Turns out if you don't say 'em, they don't go away. They get a phone line. They get a floor. They get a whole building.",
 		"who": "dale"
 	},
 	{
@@ -295,13 +675,13 @@
 		"who": "dale"
 	},
 	{
-		"file": "5c940c0da062",
-		"text": "He's holding the pen so tight his knuckles are white.",
+		"file": "d7b21b046b70",
+		"text": "He's holding the purple pen so tight his knuckles are white.",
 		"who": "narr"
 	},
 	{
-		"file": "32bb7bb4bec4",
-		"text": "Me? I'm accounts receivable, buddy. I can't sign anything. I can't even sign for the mints.",
+		"file": "4ad1621b05a7",
+		"text": "Me? I'm accounts receivable, buddy. I can't sign anything. I can't even sign for the mints. Signing out's an upstairs thing.",
 		"who": "dale"
 	},
 	{
@@ -310,23 +690,38 @@
 		"who": "dale"
 	},
 	{
-		"file": "ebb079d38faa",
-		"text": "He stands up. His knees crack like a drum fill.",
+		"file": "bd3e6ef25f5c",
+		"text": "He straightens his tie. It doesn't help, but it's nice to see him try.",
 		"who": "narr"
 	},
 	{
-		"file": "75229caddd6d",
-		"text": "Dale's lamp is the only light that survived the blackout. He's turning the purple pen over in his fingers.",
-		"who": "narr"
-	},
-	{
-		"file": "9d930f71618d",
-		"text": "Pretty spooky out there, huh? It's always like that around three. You get used to it.",
+		"file": "66c6b948b8b4",
+		"text": "Go on. Ask. You've earned it. You climbed the whole building.",
 		"who": "dale"
 	},
 	{
-		"file": "7d8401bb41c0",
-		"text": "Here, I'm Dale from receivables. Nobody expects anything.",
+		"file": "424d65bb0698",
+		"text": "Lights went funny, huh? First night's always like that. You get the badge, the card, the code... and then up you go. Up's the only way out of here.",
+		"who": "dale"
+	},
+	{
+		"file": "e671af58311d",
+		"text": "Floor two's middle management. Marge, Chad, Brenda in HR. Good people. Stuck people. Same thing, up there.",
+		"who": "dale"
+	},
+	{
+		"file": "5b8ca2616262",
+		"text": "And the top floor... the board. And the CEO. Nobody's met him. Ha. Nobody.",
+		"who": "dale"
+	},
+	{
+		"file": "91fa98a25aa1",
+		"text": "He laughs a little too long at that.",
+		"who": "narr"
+	},
+	{
+		"file": "048de81da03f",
+		"text": "Down there, I'm Dale from receivables. Nobody expects anything.",
 		"who": "dale"
 	},
 	{
@@ -365,18 +760,28 @@
 		"who": "narr"
 	},
 	{
-		"file": "2c56707b4b7a",
-		"text": "The elevator doors are shut. The call button glows a soft, inviting green.",
+		"file": "45f358b4a673",
+		"text": "The elevator. Two buttons: UP, and a DOWN button with tape over it. A card reader and a keypad glow under UP.",
 		"who": "narr"
 	},
 	{
-		"file": "bed6335ae47b",
-		"text": "The call button glows green. You know exactly where it goes. You don't press it.",
+		"file": "7b85a9255022",
+		"text": "The executive elevator, at the far end of the floor. Gold doors. A card reader. A sign: KEYCARD, SIGN-OFF AND FORM 6-0-0 REQUIRED. NO EXCEPTIONS. NO, NOT EVEN YOU.",
 		"who": "narr"
 	},
 	{
-		"file": "32ca697d6601",
-		"text": "The doors open at once, like it was waiting. You step in. The doors close. Down.",
+		"file": "d972bef1d2e4",
+		"text": "The executive elevator. Only one button: DOWN. Rule three.",
+		"who": "narr"
+	},
+	{
+		"file": "aa96d5d12276",
+		"text": "Nothing. A little screen: ASSOCIATES AND ABOVE. PLEASE PRESENT TIMECARD, BADGE AND OVERRIDE CODE.",
+		"who": "narr"
+	},
+	{
+		"file": "3ba4b9bbb9e6",
+		"text": "You peel back the tape and press DOWN. The doors open at once, like it was waiting. You step in. Down.",
 		"who": "narr"
 	},
 	{
@@ -390,13 +795,18 @@
 		"who": "narr"
 	},
 	{
-		"file": "5103a106bcd1",
-		"text": "CHUNK. 6:00 AM. CLOCKED OUT.",
+		"file": "3a1bf8705cd9",
+		"text": "6:00 AM.",
 		"who": "narr"
 	},
 	{
-		"file": "b60eaa52fe2b",
-		"text": "The screens go dark, then grey, then nothing at all. Outside the window, the sky is going orange.",
+		"file": "b7855fc00d9d",
+		"text": "The screens go dark, then grey, then nothing at all. The board slumps, four empty suits. Out over the bay, the sky goes orange.",
+		"who": "narr"
+	},
+	{
+		"file": "672ce6044593",
+		"text": "Behind you, the executive elevator dings. The panel has a new button. It has never been there before. It says ROOF.",
 		"who": "narr"
 	},
 	{
@@ -410,13 +820,18 @@
 		"who": "manager"
 	},
 	{
-		"file": "256b766813f0",
-		"text": "Then take the night off. You've earned it more than anyone.",
-		"who": "you"
+		"file": "aa0246edaad3",
+		"text": "Not anymore. I'll say it. I should've said it thirty years ago.",
+		"who": "dale"
 	},
 	{
-		"file": "28b8c62a7389",
-		"text": "A long pause. Then, very quietly, from every speaker at once:",
+		"file": "4c594c60b7f3",
+		"text": "No. You're done. Take the night off. Take all of them off.",
+		"who": "dale"
+	},
+	{
+		"file": "41ebc21bfa73",
+		"text": "A long pause. Then, very quietly, from every speaker on every floor at once:",
 		"who": "narr"
 	},
 	{
@@ -425,23 +840,33 @@
 		"who": "manager"
 	},
 	{
-		"file": "98fb3835c512",
-		"text": "The punch clock goes CHUNK. Your card comes back stamped: PROMOTED.",
+		"file": "3293881aeb54",
+		"text": "You sit in the big chair. It is warm. The board says AYE, all four of them, at exactly the same time.",
 		"who": "narr"
 	},
 	{
-		"file": "b5dc9c6d01dc",
-		"text": "The screens go back to smiling. Somewhere far away, a phone rings, once, twice, three times.",
+		"file": "38eaaf10fed8",
+		"text": "...Oh, kid.",
+		"who": "dale"
+	},
+	{
+		"file": "818f81daba89",
+		"text": "Far below you, on every floor, a phone rings once, twice, three times.",
 		"who": "narr"
 	},
 	{
-		"file": "b71d2c103135",
-		"text": "You pick it up. A voice that's almost yours says:",
+		"file": "84db478b4a6b",
+		"text": "You pick it up. A voice that's almost yours says: \"Good evening! This is the Night Manager.\"",
 		"who": "narr"
 	},
 	{
-		"file": "b30b75db1c6f",
-		"text": "\"Good evening! This is the Night Manager.\"",
+		"file": "b5137dc64326",
+		"text": "A fax machine, dusty. Its little screen says: WAITING FOR A FRIEND.",
+		"who": "narr"
+	},
+	{
+		"file": "d2e564847802",
+		"text": "The fax machine whirs. A page curls out, in Printy's chunky type: HELLO FROM DOWNSTAIRS. I AM FINISHED. IT IS NICE. GOOD LUCK UP THERE. PS: I HAVE NEVER SENT A FAX BEFORE.",
 		"who": "narr"
 	},
 	{
@@ -450,23 +875,23 @@
 		"who": "narr"
 	},
 	{
-		"file": "8d1e1a5b9e73",
-		"text": "You feed the timecard into the punch clock. You hold up the signature. You key in the code: 0-6-0-0.",
+		"file": "f95534ac47e8",
+		"text": "The conference phone rings. Once. Twice. Three times. It answers itself.",
 		"who": "narr"
 	},
 	{
-		"file": "b8c5901be2f8",
-		"text": "The punch clock doesn't punch. Every screen in the office turns to you.",
+		"file": "bb4b9a0fe99b",
+		"text": "Every screen in the building turns to face you. Every one of them, all the way down.",
 		"who": "narr"
 	},
 	{
-		"file": "69ef008e9c67",
-		"text": "Before you go! One more thing. We'd like to offer you a promotion.",
+		"file": "bb7d2f738ea0",
+		"text": "Congratulations! The board has reviewed your performance. We'd like to offer you a promotion.",
 		"who": "manager"
 	},
 	{
-		"file": "264a991dd1e7",
-		"text": "Night Manager. No more mornings. No more deadlines you can't make. Everyone you met tonight would report to you.",
+		"file": "06692c56951e",
+		"text": "Chief Executive. The chair is warm. No more mornings. No more deadlines you can't make. Everyone you met tonight would report to you.",
 		"who": "manager"
 	},
 	{
@@ -495,6 +920,16 @@
 		"who": "kip"
 	},
 	{
+		"file": "e729106a20e6",
+		"text": "Oh. Right. Sure! Work first! Always work first.",
+		"who": "kip"
+	},
+	{
+		"file": "7cd2a21869e8",
+		"text": "He turns back to the screen. MODULE 5 OF 400 is already loading.",
+		"who": "narr"
+	},
+	{
 		"file": "7453afc83f67",
 		"text": "One thousand and ninety-six! I'm almost done! I'm on Module 4! Module 4 is the last one!",
 		"who": "kip"
@@ -520,8 +955,8 @@
 		"who": "narr"
 	},
 	{
-		"file": "f32274549530",
-		"text": "A certificate slides out of the printer across the room. Kip blinks. He blinks a lot, like his eyes forgot how.",
+		"file": "a5b9bd955355",
+		"text": "The little printer spits out a badge: ASSOCIATE. Kip blinks. He blinks a lot, like his eyes forgot how. Then he clips the badge onto your shirt.",
 		"who": "narr"
 	},
 	{
@@ -535,8 +970,8 @@
 		"who": "narr"
 	},
 	{
-		"file": "17e40e8f5a03",
-		"text": "The quiz is back on question four. The answer box is blinking.",
+		"file": "92f9549f1d69",
+		"text": "The quiz is back on question four. The answer box is blinking. A little badge printer next to the monitor is warmed up and waiting.",
 		"who": "narr"
 	},
 	{
@@ -675,8 +1110,8 @@
 		"who": "narr"
 	},
 	{
-		"file": "516bfdadcbcd",
-		"text": "Somewhere across the office, Wendy calls out: \"Told you. Rule three.\"",
+		"file": "287f4b2ef05a",
+		"text": "Somewhere across the office, Wendy calls out: \"Told you. Rule three. The only way out is up.\"",
 		"who": "narr"
 	},
 	{
@@ -700,13 +1135,13 @@
 		"who": "manager"
 	},
 	{
-		"file": "6305409107b4",
-		"text": "Clocking out is simple. Bring the punch clock by the elevator three things:",
+		"file": "2f4475532202",
+		"text": "Clocking out is simple! Clocking out is approved at the top floor. You'll just need to get there.",
 		"who": "manager"
 	},
 	{
-		"file": "d89eab7df0f3",
-		"text": "Your TIMECARD. A MANAGER'S SIGNATURE. And the OVERRIDE CODE.",
+		"file": "b237933460e4",
+		"text": "The elevator takes associates and above. Bring it your TIMECARD, an ASSOCIATE BADGE, and the OVERRIDE CODE.",
 		"who": "manager"
 	},
 	{
@@ -725,6 +1160,111 @@
 		"who": "manager"
 	},
 	{
+		"file": "20f0dd9665a5",
+		"text": "She passes you again. Same pace. Same path.",
+		"who": "narr"
+	},
+	{
+		"file": "2b3f491a5c08",
+		"text": "Still here? Walk or get out of the aisle.",
+		"who": "marge"
+	},
+	{
+		"file": "ec96444820e4",
+		"text": "I never left it. Desk nineteen, empty.",
+		"who": "marge"
+	},
+	{
+		"file": "aa1ee0fc7dc0",
+		"text": "The executive card? I have it. Twenty-one years. Never used it. You don't go up there. Up there is where they decide about down here.",
+		"who": "marge"
+	},
+	{
+		"file": "99170799596d",
+		"text": "She hands it over without looking at you. Then she starts walking again. Slower now.",
+		"who": "narr"
+	},
+	{
+		"file": "1788fffb0a01",
+		"text": "Desk fourteen. Empty. Desk fifteen...",
+		"who": "marge"
+	},
+	{
+		"file": "ed54768457fc",
+		"text": "Up you go. Mind the aisle.",
+		"who": "marge"
+	},
+	{
+		"file": "296572c26c27",
+		"text": "Gone is a word for people who stopped walking. Desk seventeen, empty. Desk eighteen...",
+		"who": "marge"
+	},
+	{
+		"file": "c02415680ae7",
+		"text": "Twenty-one years. I clocked in for a walk-through in 2004 and I never found a good place to stop.",
+		"who": "marge"
+	},
+	{
+		"file": "d3242a3dd6fe",
+		"text": "You know what happens to a manager who stops walking? Somebody notices there's nothing left to manage.",
+		"who": "marge"
+	},
+	{
+		"file": "068d8840392b",
+		"text": "A woman in a red blazer walks the aisle between the cubicles. She has worn a path into the carpet, a grey ring all the way round the floor.",
+		"who": "narr"
+	},
+	{
+		"file": "f17999397d69",
+		"text": "Walk with me. I don't stop. Marge. Floor manager.",
+		"who": "marge"
+	},
+	{
+		"file": "ec03a5885bd0",
+		"text": "Desk fourteen, empty. Desk fifteen, empty. Desk sixteen... empty. Good. Everybody's exactly where they should be.",
+		"who": "marge"
+	},
+	{
+		"file": "de73ba9786d1",
+		"text": "You pull out a chair from desk fourteen. She looks at it for a long time. Then she sits.",
+		"who": "narr"
+	},
+	{
+		"file": "59caca91fcf2",
+		"text": "Oh. Oh, my feet. I forgot I had feet. They're furious.",
+		"who": "marge"
+	},
+	{
+		"file": "6369768a164e",
+		"text": "She unclips a gold card from her lanyard and puts it in your hand. It's warm. It's never been used.",
+		"who": "narr"
+	},
+	{
+		"file": "a74355ac7292",
+		"text": "Go on up. I'll... I think I'll just sit here. And not manage anything. For a little while.",
+		"who": "marge"
+	},
+	{
+		"file": "818b6c031d7f",
+		"text": "She stops. She sits. She doesn't say anything, but she doesn't get back up either.",
+		"who": "narr"
+	},
+	{
+		"file": "4c89dac70775",
+		"text": "Marge has stopped. Right in the middle of her path. She's looking down at her own feet like they belong to somebody else.",
+		"who": "narr"
+	},
+	{
+		"file": "1aa49a4cf7f5",
+		"text": "The lights went out and I... stopped. Twenty-one years. I don't know what to do with my hands.",
+		"who": "marge"
+	},
+	{
+		"file": "058a0264968b",
+		"text": "A star-shaped conference phone in the middle of the table. Its little light is on. It's always on. The Night Manager is listening.",
+		"who": "narr"
+	},
+	{
 		"file": "3c87b71926bf",
 		"text": "The phone cord has been pulled out of the wall. The speaker light is still on.",
 		"who": "narr"
@@ -737,6 +1277,16 @@
 	{
 		"file": "c3ad1caf274f",
 		"text": "A beige desk phone. The speaker light is still on, very faintly, like it's listening.",
+		"who": "narr"
+	},
+	{
+		"file": "ea88fafefa8f",
+		"text": "An oil portrait in a gold frame: a young man with a big moustache, so much hair, and a purple pen behind his ear. The plate says: D. PRUITT. FOUNDER. 1996.",
+		"who": "narr"
+	},
+	{
+		"file": "378e31d09ddb",
+		"text": "He's smiling like he hasn't found out yet.",
 		"who": "narr"
 	},
 	{
@@ -780,8 +1330,8 @@
 		"who": "narr"
 	},
 	{
-		"file": "4b9159254bb6",
-		"text": "THE LIGHTS WENT OUT AND I GOT SCARED. I PRINT WHEN I AM SCARED.",
+		"file": "ac7b28f336fa",
+		"text": "THE LIGHTS WENT FUNNY AND I GOT SCARED. I PRINT WHEN I AM SCARED.",
 		"who": "printy"
 	},
 	{
@@ -895,9 +1445,59 @@
 		"who": "you"
 	},
 	{
+		"file": "6ac39fa812c7",
+		"text": "It rings again.",
+		"who": "narr"
+	},
+	{
 		"file": "5d27bb738749",
 		"text": "And again. On the third ring there's a click. The speakerphone turns itself on.",
 		"who": "narr"
+	},
+	{
+		"file": "515c88a2cc0b",
+		"text": "The phone on your desk rings.",
+		"who": "narr"
+	},
+	{
+		"file": "10c636675243",
+		"text": "The doors close. The counter ticks over: 1. 2.",
+		"who": "narr"
+	},
+	{
+		"file": "7844428bc39c",
+		"text": "The counter doesn't show a number. It just says TOP.",
+		"who": "narr"
+	},
+	{
+		"file": "182029a27227",
+		"text": "A cubicle with a nameplate: THEO, ASSOCIATE VP OF SYNERGY. A sticky note on the screen: BACK IN 5 MIN. The sticky note is yellowed and dated 2019.",
+		"who": "narr"
+	},
+	{
+		"file": "ad760ca19618",
+		"text": "His screen saver is a picture of the top floor.",
+		"who": "narr"
+	},
+	{
+		"file": "7ad34f744199",
+		"text": "1:11 AM.",
+		"who": "narr"
+	},
+	{
+		"file": "6c6dbebd5031",
+		"text": "The lights stutter. Every monitor on the floor blinks red, all at once, and every one of them says the same thing: FLOOR 2 IS WAITING.",
+		"who": "narr"
+	},
+	{
+		"file": "e7b4416ac3b6",
+		"text": "Across the room, Kip has gone very still. The copier starts printing by itself.",
+		"who": "narr"
+	},
+	{
+		"file": "9a2df6cb14c3",
+		"text": "Reminder! The elevator takes associates and above. You're doing so well. Everybody here is doing so well. Forever.",
+		"who": "manager"
 	},
 	{
 		"file": "c84dab887f9f",
@@ -920,8 +1520,8 @@
 		"who": "wendy"
 	},
 	{
-		"file": "8fdf8502ec86",
-		"text": "You made it through three-thirty-three. Most new folks hide under a desk.",
+		"file": "74f5c19f7be6",
+		"text": "Lights went funny. Told you. Most new folks hide under a desk.",
 		"who": "wendy"
 	},
 	{
@@ -955,8 +1555,8 @@
 		"who": "wendy"
 	},
 	{
-		"file": "72bca30d0243",
-		"text": "Go meet the others, kid. Come back when the lights go funny. They always go funny around three.",
+		"file": "2faab9da1320",
+		"text": "Go meet the others, kid. Come back when the lights go funny. They always go funny, first night.",
 		"who": "wendy"
 	},
 	{
@@ -995,8 +1595,8 @@
 		"who": "wendy"
 	},
 	{
-		"file": "f081bee6fe7b",
-		"text": "...Take it. Punch mine when you punch yours. If it works for you, maybe it works for me.",
+		"file": "7d07188d25ba",
+		"text": "...Take it up with you. All the way up. Only clock in this building that punches OUT is at the top.",
 		"who": "wendy"
 	},
 	{
@@ -1030,8 +1630,8 @@
 		"who": "narr"
 	},
 	{
-		"file": "295671405eb3",
-		"text": "THREE: Don't take the elevator before six.",
+		"file": "638a50d2c507",
+		"text": "THREE: Never ride the elevator down.",
 		"who": "narr"
 	},
 	{
@@ -1055,8 +1655,8 @@
 		"who": "narr"
 	},
 	{
-		"file": "c438e2841766",
-		"text": "Punch mine too. If it works for you, maybe it works for me.",
+		"file": "5a0200101dd8",
+		"text": "Take mine up top too. If it works for you, maybe it works for me.",
 		"who": "wendy"
 	},
 	{
@@ -1085,6 +1685,11 @@
 		"who": "wendy"
 	},
 	{
+		"file": "579d51ba3737",
+		"text": "The whole bay from up here. The city is dark. Far off, at the edge of the water, the sky is just starting to think about going grey.",
+		"who": "narr"
+	},
+	{
 		"file": "7b71d8921399",
 		"text": "The clock tower across the bay has started moving again. It's catching up, fast, like it's trying to get somewhere before six.",
 		"who": "narr"
@@ -1100,43 +1705,73 @@
 		"who": "narr"
 	},
 	{
-		"file": "ae3e43ee429f",
-		"text": "You punch Wendy's card too. She stands at the window a long time. \"Huh,\" she says. \"It's orange. I forgot it was orange.\"",
+		"file": "630016a01c3c",
+		"text": "Wendy Okafor stands in the wheat with her mop over her shoulder like a fishing rod. \"Huh,\" she says. \"It's orange. I forgot it was orange.\"",
 		"who": "narr"
 	},
 	{
-		"file": "68701fa6e351",
-		"text": "Kip takes off his lanyard and holds it like a diploma. \"Day one thousand and ninety-seven,\" he says. \"Day one.\"",
+		"file": "fe97c519f1eb",
+		"text": "Kip takes off his lanyard and holds it up like a diploma. \"Day one thousand and ninety-seven,\" he says. \"Day one.\"",
 		"who": "narr"
 	},
 	{
-		"file": "a6ad0a9bb958",
-		"text": "Dale already has his coat on. \"Nine o'clock,\" he says. \"Front row. I'm gonna cry so hard. I'm gonna ugly cry.\"",
+		"file": "3911d9abc3ec",
+		"text": "Printy-9000 sits in the wheat, humming. Every few minutes it prints a page that just says SKY.",
 		"who": "narr"
 	},
 	{
-		"file": "579a2ef89027",
-		"text": "Behind you, the copier prints one last page and lets it drift to the floor: THANK YOU FOR READING.",
+		"file": "f7faf5842833",
+		"text": "Marge sits on a hay bale with her shoes off. She hasn't walked anywhere in an hour. She says it's the best meeting she's ever had.",
 		"who": "narr"
 	},
 	{
-		"file": "4c986858092c",
-		"text": "Wendy keeps mopping. The square is almost finished. It's always almost finished.",
+		"file": "96ebd71e5512",
+		"text": "Chad is on the phone. An actual phone. \"Hi buddy. It's Dad. Yeah. I'm out of the meeting.\"",
 		"who": "narr"
 	},
 	{
-		"file": "4b89d302520e",
-		"text": "Kip is still on question four. You can hear him whisper the welcome video from the elevator.",
+		"file": "ae5324d0479e",
+		"text": "Brenda isn't smiling. Then she is, a real one, small and crooked. She's practicing a toast for her sister's wedding.",
 		"who": "narr"
 	},
 	{
-		"file": "bb1499d91872",
-		"text": "Dale's lamp stays on. He waves you off without looking up. \"Right behind you,\" he says. He isn't.",
+		"file": "77ca2908668c",
+		"text": "Dale has his coat on and a program from Lucy's recital already folded in his pocket. \"Front row,\" he says. \"I'm gonna ugly cry.\"",
 		"who": "narr"
 	},
 	{
-		"file": "a69a83c9b5fa",
-		"text": "The copier is still jammed. As the doors close you hear it start a new last line.",
+		"file": "f3f47af77c36",
+		"text": "Wendy is still mopping her square on the first floor. It's almost finished. It's always almost finished.",
+		"who": "narr"
+	},
+	{
+		"file": "e132c581e8af",
+		"text": "Kip is on module five of four hundred.",
+		"who": "narr"
+	},
+	{
+		"file": "26c2a2d609d7",
+		"text": "Printy is still jammed, trying last lines nobody will read.",
+		"who": "narr"
+	},
+	{
+		"file": "6b6e4e8e57f0",
+		"text": "Marge is still walking. Desk fourteen. Empty. Desk fifteen.",
+		"who": "narr"
+	},
+	{
+		"file": "487327937ad7",
+		"text": "Chad is still in the meeting. Nobody told him he could leave.",
+		"who": "narr"
+	},
+	{
+		"file": "822bdb9b10ee",
+		"text": "Brenda is still smiling. It still hurts.",
+		"who": "narr"
+	},
+	{
+		"file": "d710ab01b4a7",
+		"text": "Dale's lamp is still on in receivables. \"Right behind you,\" he said. He isn't.",
 		"who": "narr"
 	},
 	{
