@@ -143,14 +143,14 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
           git fetch --depth 1 origin demo/dale-scan-head || exit 0
-          git worktree add /tmp/demo FETCH_HEAD
-          mkdir -p /tmp/demo/audio
-          cp -r audio/voice audio/score /tmp/demo/audio/ 2>/dev/null || true
-          mkdir -p "$GITHUB_WORKSPACE/build/web/demo"
-          cd /tmp/demo
+          # Lay the demo's files over this checkout: the recorded voices, the
+          # score and everything already imported stay in place.
+          git checkout FETCH_HEAD -- .
           godot --headless --import >/dev/null 2>&1 || true
-          godot --headless --export-release "Web" "$GITHUB_WORKSPACE/build/web/demo/index.html" 2>&1 | tail -5
-          [ -f "$GITHUB_WORKSPACE/build/web/demo/index.html" ] && echo "::notice title=Demo::https://humble-house-studios.github.io/Night-shift-/demo/"
+          mkdir -p build/web/demo
+          godot --headless --export-release "Web" build/web/demo/index.html > demo_export.log 2>&1
+          echo "::notice title=Demo voices::$(grep -c 'Storing File: res://.godot/imported/.*ogg' demo_export.log) clips packed"
+          [ -f build/web/demo/index.html ] && echo "::notice title=Demo::https://humble-house-studios.github.io/Night-shift-/demo/"
 
       - uses: actions/upload-pages-artifact@v3
         with:

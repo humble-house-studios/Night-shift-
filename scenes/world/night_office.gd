@@ -737,7 +737,7 @@ func _scan(name: String) -> Array:
 		arrays[Mesh.ARRAY_INDEX] = PackedInt32Array(d.i)
 		var mesh := ArrayMesh.new()
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		var tex := ImageTexture.create_from_image(Image.load_from_file("res://art/scan/%s_face.png" % name))
+		var tex: Texture2D = load("res://art/scan/%s_face.png" % name)
 		_scan_cache[name] = [mesh, tex, d.marks]
 	return _scan_cache[name]
 
