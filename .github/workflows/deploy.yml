@@ -40,6 +40,13 @@ jobs:
         with:
           path: models
           key: kokoro-v1.0
+      - uses: actions/cache@v4
+        with:
+          path: audio/score
+          key: score-v1-${{ hashFiles('tools/fetch_score.py') }}-${{ github.run_id }}
+          restore-keys: |
+            score-v1-${{ hashFiles('tools/fetch_score.py') }}-
+            score-v1-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -53,11 +60,23 @@ jobs:
           [ -f models/voices-v1.0.bin ] || curl -sSL -o models/voices-v1.0.bin $base/voices-v1.0.bin
           pip install -q kokoro-onnx soundfile
           python3 tools/record_voices.py models | tee voices.log
-          echo "::notice title=Voices::$(tail -1 voices.log)"
+          echo "::notice title=Voices::$(tail -2 voices.log | tr '\n' ' ')"
+          grep "^groq:" voices.log | head -2 | while IFS= read -r line; do echo "::notice title=Dale voice::${line:0:200}"; done
+        env:
+          # Look Busy's voice server: Dale in his Groq Orpheus "troy" voice.
+          VOICE_URL: https://dale-voice.humble-house.workers.dev
+      - name: Fetch the score (Creative Commons)
+        continue-on-error: true
+        shell: bash
+        run: |
+          python3 tools/fetch_score.py | tee score.log
+          echo "::notice title=Score::$(tail -1 score.log)"
       - uses: actions/upload-artifact@v4
         with:
           name: voices
-          path: audio/voice
+          path: |
+            audio/voice
+            audio/score
           retention-days: 3
 
   build:
@@ -74,10 +93,10 @@ jobs:
         continue-on-error: true
         with:
           name: voices
-          path: audio/voice
-      - name: Voices in place
+          path: audio
+      - name: Voices and score in place
         shell: bash
-        run: echo "::notice title=Voices::$(ls audio/voice 2>/dev/null | grep -c ogg) clips in the build"
+        run: echo "::notice title=Audio::$(ls audio/voice 2>/dev/null | grep -c ogg) voice clips, score $(ls audio/score 2>/dev/null | tr '\n' ' ')"
 
       - name: Install export templates
         run: |

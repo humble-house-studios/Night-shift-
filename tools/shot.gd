@@ -78,8 +78,17 @@ func visit(id: String, wants: Array, shots := false) -> void:
 
 
 func _run() -> void:
-	await wait(2.0)
-	await shot("title")
+	# The title sequence: painting, Dale, the crane into night, the logo, the menu.
+	for spec in [[1.5, "t_painting"], [4.5, "t_painting2"], [5.0, "t_dale"], [6.0, "t_crane"], [8.0, "t_night"], [3.0, "t_logo"]]:
+		await wait(spec[0])
+		await shot(spec[1])
+	main._title._press()
+	await wait(1.0)
+	await shot("t_menu")
+	if OS.get_environment("TITLE_ONLY") != "":
+		print("PASS")
+		quit()
+		return
 	main._start_new()
 	await wait(3.0)
 	await shot("wake")

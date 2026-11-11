@@ -29,6 +29,7 @@ var story := NightStory.new()
 var office: Node
 var _state := TITLE_SCREEN
 var _world_vp: SubViewport
+var _world_box: SubViewportContainer
 var _player: CharacterBody3D
 var _camera: Camera3D
 var _yaw := 0.0
@@ -95,6 +96,8 @@ var _smile := 0.0
 var _amb: AudioStreamPlayer
 var _drone: AudioStreamPlayer
 var _music: AudioStreamPlayer
+var _score: AudioStreamPlayer
+const SCORE_DB := -11.0
 var _blip: AudioStreamPlayer
 var _voice: AudioStreamPlayer
 var _voices_on := true
@@ -123,6 +126,7 @@ func _build_world() -> void:
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(box)
+	_world_box = box
 	_world_vp = SubViewport.new()
 	_world_vp.audio_listener_enable_3d = true
 	box.add_child(_world_vp)
@@ -336,46 +340,9 @@ func _build_ui() -> void:
 
 
 func _build_title() -> void:
-	_title = Control.new()
-	_title.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_title = preload("res://scenes/story/title.gd").new()
 	add_child(_title)
-	var shade := ColorRect.new()
-	shade.color = Color(0.0, 0.0, 0.02, 0.45)
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_title.add_child(shade)
-	var v := VBoxContainer.new()
-	v.name = "Stack"
-	v.alignment = BoxContainer.ALIGNMENT_CENTER
-	v.add_theme_constant_override("separation", 18)
-	_title.add_child(v)
-	var logo := _label(TITLE, 120, Color(1.0, 0.42, 0.32))
-	logo.text = "NIGHT\nSHIFT"
-	logo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	logo.add_theme_constant_override("line_spacing", -38)
-	logo.add_theme_color_override("font_shadow_color", Color(0.4, 0.0, 0.0, 0.8))
-	logo.add_theme_constant_override("shadow_offset_x", 6)
-	logo.add_theme_constant_override("shadow_offset_y", 6)
-	v.add_child(logo)
-	var sub := _label(PIXEL, 20, Color(0.85, 0.8, 0.75))
-	sub.text = "A LOOK BUSY STORY"
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(sub)
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0, 40)
-	v.add_child(gap)
-	var go := _button("CLOCK IN", 36)
-	go.name = "Go"
-	go.pressed.connect(_start_new)
-	v.add_child(go)
-	var cont := _button("CONTINUE THE NIGHT", 32)
-	cont.name = "Continue"
-	cont.pressed.connect(_continue)
-	v.add_child(cont)
-	var note := _label(BODY, 28, Color(0.65, 0.65, 0.75))
-	note.text = "One night. 11:58 PM to 6:00 AM.\nAbout 20 minutes. Sound on."
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(note)
+	_title.setup(self)
 
 
 func _build_end() -> void:
@@ -452,10 +419,6 @@ func _layout() -> void:
 	_card.custom_minimum_size = Vector2(cw, 0)
 	_card.size = Vector2(cw, 0)
 	_card.position = (size - _card.get_combined_minimum_size()) * 0.5
-	var tw := minf(620.0, r - l)
-	var ts: Control = _title.get_node("Stack")
-	ts.size = Vector2(tw, b - t)
-	ts.position = Vector2((size.x - tw) * 0.5, t)
 	var es: Control = _end.get_node("Stack")
 	es.position = Vector2(l, t)
 	es.size = Vector2(r - l, b - t)
@@ -463,7 +426,6 @@ func _layout() -> void:
 	_end_lines.custom_minimum_size = Vector2(ew, 0)
 	_end_title.custom_minimum_size = Vector2(ew, 0)
 	_end_btn.custom_minimum_size = Vector2(ew, 88)
-	_title.get_node("Stack").get_child(0).add_theme_font_size_override("font_size", 96 if wide else 128)
 
 
 # ---------------------------------------------------------------- sound
@@ -488,15 +450,66 @@ func _build_sound() -> void:
 	_amb = _player_for("res://audio/office_ac.ogg", -18.0, true)
 	_drone = _player_for("res://audio/night_drone.ogg", -12.0, true)
 	_music = _player_for("res://audio/office_title.ogg", -8.0, true)
+	_score = AudioStreamPlayer.new()
+	_score.volume_db = -60.0
+	add_child(_score)
 	_blip = _player_for("res://audio/blip.wav", -14.0)
 	_blip.max_polyphony = 3
 	_voice = AudioStreamPlayer.new()
 	_voice.volume_db = 0.0
 	add_child(_voice)
-	for n in ["ring", "bell", "creak", "busted", "lift_ding", "lift_doors", "print", "thump", "step_1", "step_2"]:
+	for n in ["ring", "bell", "creak", "busted", "lift_ding", "lift_doors", "print", "thump", "step_1", "step_2", "choice", "shimmer", "swell", "tapestop", "wrong", "page"]:
 		var p := _player_for("res://audio/%s.wav" % n, -6.0)
 		p.max_polyphony = 2
 		_sfx[n] = p
+
+
+## Crossfade the score to a cue (audio/score/<cue>.ogg, Creative Commons,
+## tools/fetch_score.py). Without the file: the title falls back to Look
+## Busy's "Clock-In Ballad", the night to the drone alone.
+func _cue(id: String) -> void:
+	var path := "res://audio/score/%s.ogg" % id
+	var stream: AudioStream = null
+	if ResourceLoader.exists(path):
+		stream = _stream(path, true)
+	elif id == "title":
+		stream = _stream("res://audio/office_title.ogg", true)
+	if stream == null or (_score.playing and _score.stream == stream):
+		if stream == null:
+			_fade_score(-60.0)
+		return
+	var tw := create_tween()
+	if _score.playing:
+		tw.tween_property(_score, "volume_db", -50.0, 2.5)
+	tw.tween_callback(func():
+		_score.stream = stream
+		_score.volume_db = -40.0
+		_score.play())
+	tw.tween_property(_score, "volume_db", SCORE_DB, 4.0)
+
+
+func _fade_score(db: float, time := 3.0) -> void:
+	var tw := create_tween()
+	tw.tween_property(_score, "volume_db", db, time)
+	if db <= -50.0:
+		tw.tween_callback(_score.stop)
+
+
+func _credits_text() -> String:
+	var lines := ["NIGHT SHIFT", "A Humble House Games story, made with Claude.", ""]
+	var f := FileAccess.open("res://audio/score/credits.json", FileAccess.READ)
+	if f:
+		var c = JSON.parse_string(f.get_as_text())
+		if c is Dictionary and not c.is_empty():
+			lines.append("MUSIC")
+			for cue in c:
+				lines.append("\"%s\" by %s (%s)\n%s" % [c[cue].title, c[cue].author, c[cue].license, c[cue].page])
+	lines.append("\"Clock-In Ballad\" from Look Busy.")
+	lines.append("")
+	lines.append("VOICES: Kokoro (open-source, Apache 2.0). Dale: Orpheus via Groq.")
+	lines.append("FONTS: Press Start 2P, Pixelify Sans, Inter (SIL OFL).")
+	lines.append("ENGINE: Godot 4.3 (MIT).")
+	return "\n".join(lines)
 
 
 func _play(n: String, db := -6.0, pitch := 1.0) -> void:
@@ -523,8 +536,9 @@ func _toggle_sound() -> void:
 
 func _show_title() -> void:
 	_state = TITLE_SCREEN
-	_title.visible = true
-	_title.get_node("Stack/Continue").visible = NightStory.has_save()
+	_title.start()
+	_update_hud()
+	_hint.visible = false
 	_box.visible = false
 	_end.visible = false
 	_fade_to(0.0, 1.5)
@@ -549,13 +563,16 @@ func _new_night() -> void:
 
 func _begin() -> void:
 	_start_sound()
-	_title.visible = false
+	_title.stop()
+	for id in office.screen_ids():
+		office.screen(id)
 	_menu.visible = false
 	_apply_story_state()
 	_player.position = START
 	_yaw = 0.0
 	_pitch = -0.2
 	_state = WALK
+	_cue("late" if story.has("blackout_done") else "night")
 	_update_hud()
 	_next_auto()
 
@@ -595,6 +612,8 @@ func _talk(who: String, id: String) -> void:
 
 
 func _glide(to: Transform3D, then: String) -> void:
+	if then != "" and _state == WALK:
+		_play("swell", -16.0, randf_range(0.95, 1.05))
 	_glide_from = _camera.global_transform
 	_glide_to = to
 	_glide_t = 0.0
@@ -673,6 +692,7 @@ func _advance() -> void:
 		return
 	if _page < _pages.size() - 1:
 		_page += 1
+		_play("page", -14.0, randf_range(0.9, 1.1))
 		_show_page()
 		return
 	_after_pages()
@@ -713,7 +733,7 @@ func _clear_choices() -> void:
 
 func _choose(i: int) -> void:
 	_voice.stop()
-	_play("creak", -20.0, 2.2)
+	_play("choice", -9.0, randf_range(0.97, 1.03))
 	var next := story.pick(_node, i)
 	_clear_choices()
 	if next == "":
@@ -772,7 +792,7 @@ func _event(ev: String) -> void:
 		"rules":
 			_toast_show("RULES CARD ADDED  ·  II TO READ")
 		"item":
-			_play("bell", -6.0, 1.2)
+			_play("shimmer", -4.0)
 			_toast_show(_item_toast())
 		"buzz":
 			_play("busted", -8.0, 1.4)
@@ -786,6 +806,7 @@ func _event(ev: String) -> void:
 		"shake":
 			_shake = 0.6
 			_play("thump", -2.0, 0.5)
+			_play("wrong", -4.0)
 		"kip_wake":
 			_kip_frozen = false
 		"dale_stand":
@@ -798,7 +819,10 @@ func _event(ev: String) -> void:
 		"blackout":
 			_blackout = 1.0
 			_shake = 0.8
+			_play("tapestop", -2.0)
 			_play("thump", 0.0, 0.4)
+			_score.stop()
+			_cue("late")
 			_after_blackout()
 		"after_blackout":
 			_kip_frozen = not story.has("kip_free")
@@ -809,10 +833,12 @@ func _event(ev: String) -> void:
 			_drone.volume_db = -4.0
 		"end_bad":
 			_ending = "bad"
+			_play("wrong", -2.0, 0.7)
 			for id in office.screen_ids():
 				office.screen(id, "WELCOME,\nMANAGER", Color(1.0, 0.25, 0.2))
 		"dawn":
 			_dawn = 0.0
+			_fade_score(-60.0, 5.0)
 			_play("lift_ding", -2.0)
 			var eye := Vector3(-0.2, 1.5, 1.7)
 			_glide_from = _camera.global_transform
@@ -988,11 +1014,7 @@ func _tick_type(delta: float) -> void:
 func _tick_camera(delta: float) -> void:
 	match _state:
 		TITLE_SCREEN:
-			# A slow drift past Dale's lamp, the window, the red EXIT.
-			var a := _t * 0.07
-			var eye := Vector3(-0.4 + sin(a) * 1.2, 1.45 + sin(a * 1.7) * 0.08, 0.9 + cos(a) * 0.9)
-			var look := Vector3(-2.6, 1.15, -0.6).lerp(Vector3(0, 1.1, -2.4), 0.5 + 0.5 * sin(a * 0.6))
-			_camera.global_transform = Transform3D(Basis.looking_at(look - eye, Vector3.UP), eye)
+			pass  # title.gd films the office
 		GLIDING:
 			_glide_t = minf(1.0, _glide_t + delta / GLIDE)
 			var k := _glide_t * _glide_t * (3.0 - 2.0 * _glide_t)

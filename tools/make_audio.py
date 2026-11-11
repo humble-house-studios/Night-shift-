@@ -66,6 +66,85 @@ x = (d + air + tones) * 0.8
 fade = int(SR * 0.05)
 x[:fade] *= np.linspace(0, 1, fade) ** 0.5 * 0 + 1
 save_wav("_drone.wav", x)
+
+
+# ---- soft psychedelic UI sounds: glassy, detuned, a little reversed.
+
+def bell(f, dur, bright=2.0, decay=4.0):
+    """An FM bell: a sine whose partials shimmer and fade."""
+    t = t_of(dur)
+    mod = np.sin(2 * np.pi * f * 1.414 * t) * bright * np.exp(-t * decay * 0.7)
+    return np.sin(2 * np.pi * f * t + mod) * np.exp(-t * decay)
+
+
+def chorus(x, cents=9, ms=11):
+    """Two slightly detuned, slightly late copies: the woozy shimmer."""
+    n = len(x)
+    out = x.copy()
+    for k, d in [(1, ms), (-1, ms * 1.7)]:
+        rate = 2 ** (k * cents / 1200)
+        idx = np.clip(np.arange(n) * rate, 0, n - 1)
+        y = np.interp(idx, np.arange(n), x)
+        shift = int(SR * d / 1000)
+        y = np.concatenate([np.zeros(shift), y[:n - shift]])
+        out += 0.6 * y
+    return out / 2.2
+
+
+def tail(x, sec=1.4, mix=0.35):
+    """A cheap smeared reverb tail (a few decaying echoes, low-passed)."""
+    n = len(x) + int(SR * sec)
+    out = np.zeros(n)
+    out[:len(x)] += x
+    for i, d in enumerate([0.043, 0.071, 0.113, 0.167, 0.239, 0.331]):
+        s0 = int(SR * d)
+        out[s0:s0 + len(x)] += x * mix * (0.72 ** i)
+    return lowpass(out, 0.35)
+
+
+def pad(x, sec):
+    return np.concatenate([x, np.zeros(int(SR * sec))])
+
+
+# A choice picked: one glassy pluck, a fifth above whispering after it.
+x = bell(660, 0.5, 1.2, 9) * 0.5
+y = np.concatenate([np.zeros(int(SR * 0.035)), bell(990, 0.465, 0.8, 11) * 0.25])
+x[:len(y)] += y[:len(x)]
+save_wav("choice.wav", tail(chorus(x), 0.6, 0.25) * 0.8)
+
+# Something got: a rising arpeggio of bells that blooms and drifts off.
+notes = [523.25, 659.25, 783.99, 1046.5, 1318.5]
+x = np.zeros(int(SR * 2.4))
+for i, f in enumerate(notes):
+    b = bell(f, 1.6, 1.6, 2.6) * (0.5 - i * 0.05)
+    s0 = int(SR * i * 0.09)
+    x[s0:s0 + len(b)] += b[:len(x) - s0]
+save_wav("shimmer.wav", tail(chorus(x, 14, 15), 1.2, 0.3) * 0.6)
+
+# A reverse swell: air and a soft chord breathing in (gliding to someone).
+t = t_of(1.3)
+chord = sum(np.sin(2 * np.pi * f * t) for f in [220, 277.18, 329.63, 440]) / 4
+air = lowpass(rng.standard_normal(len(t)), 0.05) * 0.5
+env = (t / t[-1]) ** 2.5
+x = (chord * 0.5 + air) * env
+x[-int(SR * 0.03):] *= np.linspace(1, 0, int(SR * 0.03))
+save_wav("swell.wav", chorus(x, 12, 9) * 0.55)
+
+# Tape stop: the world slowing down and dropping (the 3:33 blackout).
+t = t_of(1.6)
+speed = np.clip(1 - t / 1.6, 0, 1) ** 1.5
+phase = np.cumsum(2 * np.pi * 180 * speed / SR)
+x = (np.sin(phase) + 0.5 * np.sin(phase * 1.5) + 0.3 * np.sin(phase * 2.01)) * np.minimum(1, speed * 3) * 0.4
+save_wav("tapestop.wav", tail(x, 0.8, 0.3))
+
+# A wrong note: two bells a quarter-tone apart, beating (bad choices).
+x = bell(415, 1.4, 2.5, 3) * 0.4 + bell(427, 1.4, 2.5, 3) * 0.4
+save_wav("wrong.wav", tail(x, 1.0, 0.3) * 0.7)
+
+# Page turn: a tiny airy tick.
+t = t_of(0.12)
+x = lowpass(rng.standard_normal(len(t)), 0.4) * np.exp(-t * 45) * 0.25 + bell(1760, 0.12, 0.5, 30) * 0.08
+save_wav("page.wav", x)
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(OUT, "_drone.wav"),
                 "-c:a", "libvorbis", "-q:a", "3", os.path.join(OUT, "night_drone.ogg")], check=True)
 os.remove(os.path.join(OUT, "_drone.wav"))

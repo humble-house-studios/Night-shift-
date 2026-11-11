@@ -21,10 +21,20 @@ import subprocess
 import sys
 import tempfile
 import time
+import base64
+import urllib.error
+import urllib.request
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 OUT = os.path.join(ROOT, "audio", "voice")
 VERSION = "1"
+# Dale speaks in his Look Busy voice: Groq's Orpheus "troy" (Samuel's pick),
+# through Look Busy's voice server (VOICE_URL). Groq's free allowance is
+# small, so a run records at most DALE_MAX of his lines there; until a line
+# has its Groq take, Kokoro stands in and the next run tries again.
+DALE_VOICE = "troy"
+DALE_MAX = 30
+PAUSE = 7.0
 
 # who: (kokoro voice or [(voice, weight), ...], speed, lang, ffmpeg filter)
 PHONE = "highpass=f=280,lowpass=f=3600,acrusher=bits=12:mix=0.2"
@@ -101,6 +111,26 @@ def main():
         if f.endswith(".ogg") and f not in wanted:
             os.remove(os.path.join(OUT, f))
     styles = {}
+    engines_file = os.path.join(OUT, "engines.json")
+    engines = json.load(open(engines_file)) if os.path.exists(engines_file) else {}
+    url = os.environ.get("VOICE_URL", "").rstrip("/")
+    dale_made, dale_out = 0, not url
+
+    def groq(text, path):
+        body = json.dumps({"text": text, "engine": "groq", "voice": DALE_VOICE}).encode()
+        req = urllib.request.Request(url + "/say", body, {"Content-Type": "application/json", "User-Agent": "humble-house-build/1.0"})
+        try:
+            d = json.load(urllib.request.urlopen(req, timeout=120))
+        except (urllib.error.URLError, ValueError) as e:
+            return str(e)
+        if not d.get("audio") or "groq" not in json.dumps(d.get("models", {})):
+            return json.dumps(d.get("models", {}))[:200]
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            tmp.write(base64.b64decode(d["audio"]))
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", tmp.name, "-af", "adelay=60,apad=pad_dur=0.15,loudnorm=I=-17:TP=-1.5:LRA=11",
+                        "-ar", "24000", "-ac", "1", "-c:a", "libvorbis", "-q:a", "3", path], check=True)
+        os.remove(tmp.name)
+        return ""
 
     def style(v):
         if isinstance(v, str):
@@ -113,13 +143,23 @@ def main():
     made, kept, failed, t0 = 0, 0, 0, time.time()
     for l in lines:
         path = os.path.join(OUT, l["file"] + ".ogg")
+        text = speakable(l["who"], l["text"])
+        if not re.search(r"[A-Za-z]", text):
+            continue
+        if l["who"] == "dale" and engines.get(l["file"]) != "groq" and not dale_out and dale_made < DALE_MAX:
+            err = groq(text, path)
+            time.sleep(PAUSE)
+            if err == "":
+                engines[l["file"]] = "groq"
+                dale_made += 1
+                made += 1
+                continue
+            print("groq: " + err)
+            dale_out = True  # out for today (or no server): Kokoro stands in
         if os.path.exists(path):
             kept += 1
             continue
         voice, speed, lang, fx = CAST.get(l["who"], CAST["narr"])
-        text = speakable(l["who"], l["text"])
-        if not re.search(r"[A-Za-z]", text):
-            continue
         try:
             samples, rate = kokoro.create(text, voice=style(voice), speed=speed, lang=lang)
             samples = np.concatenate([np.zeros(int(rate * 0.06)), samples, np.zeros(int(rate * 0.15))])
@@ -129,10 +169,15 @@ def main():
             subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", tmp.name, "-af", chain, "-ar", "24000", "-ac", "1",
                             "-c:a", "libvorbis", "-q:a", "3", path], check=True)
             os.remove(tmp.name)
+            engines[l["file"]] = "kokoro"
             made += 1
         except Exception as e:  # one bad line shouldn't stop the rest
             failed += 1
             print("failed %s (%s): %s" % (l["file"], l["who"], e))
+    json.dump(engines, open(engines_file, "w"), indent=1)
+    dale_total = sum(1 for l in lines if l["who"] == "dale")
+    dale_groq = sum(1 for l in lines if l["who"] == "dale" and engines.get(l["file"]) == "groq")
+    print("dale in troy: %d of %d" % (dale_groq, dale_total))
     size = sum(os.path.getsize(os.path.join(OUT, f)) for f in os.listdir(OUT))
     print("recorded %d, kept %d, failed %d, %.1f MB, %.0f s" % (made, kept, failed, size / 1e6, time.time() - t0))
 

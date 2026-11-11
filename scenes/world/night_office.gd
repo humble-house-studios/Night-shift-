@@ -53,6 +53,9 @@ var doors: Array = []
 var floor_label: Label3D
 var punch_label: Label3D
 var coffee_dot: ShaderMaterial
+## "Golden Hour", the painting the title sequence opens on.
+const PICTURE := Vector3(-1.45, 1.62, 3.975)
+var picture_mat: ShaderMaterial
 
 
 func _mat(albedo: Color, pattern := 0, albedo2 := Color.BLACK, texel := 24.0, emission := Color.BLACK) -> ShaderMaterial:
@@ -413,6 +416,7 @@ func build(parent: Node3D) -> void:
 	_build_coffee()
 	_build_exit()
 	_build_props()
+	_build_picture()
 	set_night(_night)
 
 
@@ -907,6 +911,23 @@ func _build_exit() -> void:
 	_box(Vector3(0.2, 0.36, 0.05), Vector3(-0.32, -0.02, 0.025), grey, false, Vector3.ZERO, clock)
 	for i in 5:
 		_box(Vector3(0.08, 0.1, 0.004), Vector3(-0.32 + (i % 2) * 0.06 - 0.03, 0.08 - i * 0.05, 0.053), _mat(Color(0.93, 0.9, 0.78)), false, Vector3(0, 0, (i % 3 - 1) * 0.06), clock)
+
+
+## "Golden Hour" (Look Busy's print by Pong): the sunset over the bay, framed
+## on the front wall. The title sequence opens close on it as the sun goes.
+func _build_picture() -> void:
+	var at := PICTURE
+	var wood := _mat(Color(0.36, 0.22, 0.13), 3, Color(0.3, 0.18, 0.1), 60.0)
+	var matte := _mat(Color(0.93, 0.9, 0.82))
+	var face := Vector3(0, PI, 0)
+	_box(Vector3(0.94, 0.68, 0.012), at + Vector3(0, 0, 0.012), matte, false, face)
+	var q := _sunset_quad(Vector2(0.8, 0.54), at + Vector3(0, 0, -0.002), face, {"grid": 240.0, "level": 0.92, "horizon": 0.34, "sun_x": 0.42})
+	picture_mat = q.material_override
+	for bar in [[Vector3(1.04, 0.06, 0.05), Vector3(0, 0.37, 0)], [Vector3(1.04, 0.06, 0.05), Vector3(0, -0.37, 0)],
+			[Vector3(0.06, 0.8, 0.05), Vector3(0.49, 0, 0)], [Vector3(0.06, 0.8, 0.05), Vector3(-0.49, 0, 0)]]:
+		_box(bar[0], at + bar[1], wood, false, face)
+	_box(Vector3(0.22, 0.05, 0.012), at + Vector3(0, -0.44, 0.005), _mat(Color(0.78, 0.64, 0.3)), false, face)
+	_label("GOLDEN HOUR", at + Vector3(0, -0.44, -0.004), 6, Color(0.22, 0.14, 0.06), face)
 
 
 ## Open the elevator (dawn).
