@@ -759,8 +759,8 @@ func _scan_head(id: String, parts: Dictionary, look: Dictionary) -> void:
 		eye_n.append([e.position, e.scale])
 	var before := head.get_children()
 	var m := _mat(Color.WHITE)
+	m.shader = preload("res://scenes/world/ps1_photo.gdshader")
 	m.set_shader_parameter("photo", sc[1])
-	m.set_shader_parameter("use_photo", 1.0)
 	var mi := MeshInstance3D.new()
 	mi.mesh = sc[0]
 	mi.material_override = m
