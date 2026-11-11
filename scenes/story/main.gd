@@ -97,7 +97,9 @@ var _amb: AudioStreamPlayer
 var _drone: AudioStreamPlayer
 var _music: AudioStreamPlayer
 var _score: AudioStreamPlayer
-const SCORE_DB := -11.0
+## One steady bed under the score: no ducking, no swells (steady = the vibe).
+const DRONE_DB := -20.0
+const SCORE_DB := -8.0
 var _blip: AudioStreamPlayer
 var _voice: AudioStreamPlayer
 var _voices_on := true
@@ -448,7 +450,7 @@ func _player_for(path: String, db: float, loop := false) -> AudioStreamPlayer:
 
 func _build_sound() -> void:
 	_amb = _player_for("res://audio/office_ac.ogg", -18.0, true)
-	_drone = _player_for("res://audio/night_drone.ogg", -12.0, true)
+	_drone = _player_for("res://audio/night_drone.ogg", DRONE_DB, true)
 	_music = _player_for("res://audio/office_title.ogg", -8.0, true)
 	_score = AudioStreamPlayer.new()
 	_score.volume_db = -60.0
@@ -467,7 +469,7 @@ func _build_sound() -> void:
 ## Crossfade the score to a cue (audio/score/<cue>.ogg, Creative Commons,
 ## tools/fetch_score.py). Without the file: the title falls back to Look
 ## Busy's "Clock-In Ballad", the night to the drone alone.
-func _cue(id: String) -> void:
+func _cue(id: String, now := false) -> void:
 	var path := "res://audio/score/%s.ogg" % id
 	var stream: AudioStream = null
 	if ResourceLoader.exists(path):
@@ -477,6 +479,11 @@ func _cue(id: String) -> void:
 	if stream == null or (_score.playing and _score.stream == stream):
 		if stream == null:
 			_fade_score(-60.0)
+		return
+	if now or not _score.playing:
+		_score.stream = stream
+		_score.volume_db = SCORE_DB
+		_score.play()
 		return
 	var tw := create_tween()
 	if _score.playing:
@@ -537,6 +544,9 @@ func _toggle_sound() -> void:
 func _show_title() -> void:
 	_state = TITLE_SCREEN
 	_title.start()
+	# The music starts with the picture (the browser lets it out on the first tap).
+	_start_sound()
+	_cue("title", true)
 	_update_hud()
 	_hint.visible = false
 	_box.visible = false
@@ -815,7 +825,6 @@ func _event(ev: String) -> void:
 		"loop":
 			_fade_to(1.0, 2.2)
 			_play("lift_doors", -4.0)
-			_drone.volume_db = -6.0
 		"blackout":
 			_blackout = 1.0
 			_shake = 0.8
@@ -830,7 +839,6 @@ func _event(ev: String) -> void:
 		"finale":
 			for id in office.screen_ids():
 				office.screen(id, "• •\n‿", Color(1.0, 0.3, 0.25))
-			_drone.volume_db = -4.0
 		"end_bad":
 			_ending = "bad"
 			_play("wrong", -2.0, 0.7)
@@ -1149,7 +1157,7 @@ func _tick_effects(delta: float) -> void:
 			_music.play()
 			_music.volume_db = -30.0
 		_music.volume_db = lerpf(-30.0, -8.0, k)
-		_drone.volume_db = lerpf(-12.0, -60.0, k)
+		_drone.volume_db = lerpf(DRONE_DB, -60.0, k)
 		if _dawn > 0.15:
 			for id in office.screen_ids():
 				office.screen(id, "", Color(), true)
@@ -1165,11 +1173,7 @@ func _tick_effects(delta: float) -> void:
 			_play("print", -10.0, randf_range(0.95, 1.05))
 		if _printing <= 0.0:
 			_set_printy_face()
-	if _drone.playing and _dawn < 0.0:
-		var want := -6.0 if story.has("blackout_done") else -12.0
-		if _voice.playing:
-			want -= 6.0
-		_drone.volume_db = lerpf(_drone.volume_db, want, minf(1.0, delta * 0.5))
+
 
 
 # ---------------------------------------------------------------- name tags

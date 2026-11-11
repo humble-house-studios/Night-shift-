@@ -38,13 +38,13 @@ var _items: Array[Button] = []
 var _pick := 0
 var _credits: PanelContainer
 var _logo_t := 0.0
-var _sound := false
+var _last_press := 0
 var _screens_on := false
 
 
 func setup(m: Node) -> void:
 	main = m
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_post = ShaderMaterial.new()
 	_post.shader = POST
@@ -297,10 +297,10 @@ func _show_credits() -> void:
 
 ## Any tap or button: wake the sound, skip ahead, or move through the menu.
 func _press() -> void:
-	if not _sound:
-		_sound = true
-		main._start_sound()
-		main._cue("title")
+	var now := Time.get_ticks_msec()
+	if now - _last_press < 300:
+		return
+	_last_press = now
 	match _phase:
 		"shots":
 			_to_logo()

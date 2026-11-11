@@ -43,10 +43,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: audio/score
-          key: score-v1-${{ hashFiles('tools/fetch_score.py') }}-${{ github.run_id }}
+          key: score-v2-${{ hashFiles('tools/fetch_score.py') }}-${{ github.run_id }}
           restore-keys: |
-            score-v1-${{ hashFiles('tools/fetch_score.py') }}-
-            score-v1-
+            score-v2-${{ hashFiles('tools/fetch_score.py') }}-
+            score-v2-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -70,6 +70,7 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
+          pip install -q numpy
           python3 tools/fetch_score.py | tee score.log
           echo "::notice title=Score::$(tail -1 score.log)"
       - uses: actions/upload-artifact@v4

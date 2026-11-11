@@ -26,6 +26,16 @@ def lowpass(x, k):
     return y
 
 
+def seamless(x, sec):
+    """Fold the last `sec` seconds over the start (equal-power crossfade) so
+    the loop point can't be heard: play it on repeat and it never clicks."""
+    n = int(SR * sec)
+    body = x[n:].copy()
+    k = np.linspace(0, 1, n)
+    body[-n:] = body[-n:] * np.cos(k * np.pi / 2) + x[:n] * np.sin(k * np.pi / 2)
+    return body
+
+
 def t_of(sec):
     return np.arange(int(SR * sec)) / SR
 
@@ -63,8 +73,7 @@ for start, f in [(2.0, 220.0), (6.5, 261.6), (11.0, 207.7)]:
     tt = t[m] - start
     tones[m] += np.sin(2 * np.pi * f * tt) * np.sin(np.pi * tt / 4) ** 2 * 0.06
 x = (d + air + tones) * 0.8
-fade = int(SR * 0.05)
-x[:fade] *= np.linspace(0, 1, fade) ** 0.5 * 0 + 1
+x = seamless(np.concatenate([x, x[:int(SR * 3)]]), 3.0)
 save_wav("_drone.wav", x)
 
 

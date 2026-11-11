@@ -4,7 +4,9 @@ machine, trimmed and faded into loops, and credited in the game (CREDITS).
 
     python3 tools/fetch_score.py
 
-Writes audio/score/<cue>.ogg and audio/score/credits.json. Each cue tries
+Writes audio/score/<cue>.ogg and audio/score/credits.json. Each track is
+made into a seamless loop: its last seconds are folded over its start with
+an equal-power crossfade, so it repeats with no gap, dip or click. Each cue tries
 its tracks in order and keeps the first that downloads and plays; if none
 does, the game falls back to its own drone (audio/night_drone.ogg), so a
 dead link never breaks the build. Needs curl and ffmpeg.
@@ -13,6 +15,8 @@ import json
 import os
 import subprocess
 import tempfile
+
+import numpy as np
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 OUT = os.path.join(ROOT, "audio", "score")
@@ -39,6 +43,8 @@ CUES = {
     ],
 }
 MAX_SECONDS = 240
+FOLD = 8.0
+PROCESS = 2  # bump to remake every loop
 
 
 def duration(path):
@@ -56,7 +62,7 @@ def main():
     credits = json.load(open(credits_file)) if os.path.exists(credits_file) else {}
     for cue, tracks in CUES.items():
         out = os.path.join(OUT, cue + ".ogg")
-        if os.path.exists(out) and cue in credits and any(credits[cue]["url"] == t[3] for t in tracks):
+        if os.path.exists(out) and cue in credits and credits[cue].get("process") == PROCESS and any(credits[cue]["url"] == t[3] for t in tracks):
             print("%s: kept %s" % (cue, credits[cue]["title"]))
             continue
         for title, author, lic, url, page in tracks:
@@ -66,11 +72,19 @@ def main():
                 if r.returncode != 0 or duration(raw) < 30:
                     print("%s: %s didn't download" % (cue, title))
                     continue
-                length = min(duration(raw), MAX_SECONDS)
-                fade = "afade=t=in:d=4,afade=t=out:st=%.2f:d=6" % (length - 6)
-                subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", raw, "-t", str(length), "-af", fade,
-                                "-ar", "44100", "-ac", "2", "-c:a", "libvorbis", "-q:a", "3", out], check=True)
-                credits[cue] = {"title": title, "author": author, "license": lic, "url": url, "page": page}
+                length = min(duration(raw), MAX_SECONDS + FOLD)
+                pcm = os.path.join(d, "pcm.raw")
+                subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", raw, "-t", str(length), "-f", "f32le",
+                                "-ar", "44100", "-ac", "2", pcm], check=True)
+                x = np.fromfile(pcm, dtype=np.float32).reshape(-1, 2)
+                n = int(44100 * FOLD)
+                body = x[n:].copy()
+                k = np.linspace(0, 1, n)[:, None]
+                body[-n:] = body[-n:] * np.cos(k * np.pi / 2) + x[:n] * np.sin(k * np.pi / 2)
+                body.astype(np.float32).tofile(pcm)
+                subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "f32le", "-ar", "44100", "-ac", "2", "-i", pcm,
+                                "-af", "loudnorm=I=-20:TP=-2:LRA=9", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "3", out], check=True)
+                credits[cue] = {"title": title, "author": author, "license": lic, "url": url, "page": page, "process": PROCESS}
                 print("%s: %s by %s (%.0f s)" % (cue, title, author, length))
                 break
     json.dump(credits, open(credits_file, "w"), indent=1)
