@@ -27,6 +27,9 @@ enum { TITLE_SCREEN, WALK, GLIDING, TALK, ENDING }
 
 var story := NightStory.new()
 var office: Node
+var _psy: ColorRect
+var _psy_tw: Tween
+var _glitch_t := 30.0
 var _state := TITLE_SCREEN
 var _world_vp: SubViewport
 var _world_box: SubViewportContainer
@@ -185,6 +188,18 @@ func _build_world() -> void:
 	var world := Node3D.new()
 	_world_vp.add_child(world)
 	office = Office.new()
+	# The trip between scenes (warp.gdshader), drawn over the 3D view only.
+	var warp_layer := CanvasLayer.new()
+	warp_layer.layer = 5
+	_world_vp.add_child(warp_layer)
+	_psy = ColorRect.new()
+	_psy.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_psy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var pm := ShaderMaterial.new()
+	pm.shader = preload("res://scenes/story/warp.gdshader")
+	_psy.material = pm
+	_psy.visible = false
+	warp_layer.add_child(_psy)
 	add_child(office)
 	office.build(world)
 	_player = CharacterBody3D.new()
@@ -532,7 +547,7 @@ func _build_sound() -> void:
 	_voice = AudioStreamPlayer.new()
 	_voice.volume_db = 0.0
 	add_child(_voice)
-	for n in ["ring", "bell", "creak", "busted", "lift_ding", "lift_doors", "print", "thump", "step_1", "step_2", "choice", "shimmer", "swell", "tapestop", "wrong", "page"]:
+	for n in ["ring", "bell", "creak", "busted", "lift_ding", "lift_doors", "print", "thump", "step_1", "step_2", "choice", "shimmer", "swell", "tapestop", "wrong", "page", "glitch", "warp"]:
 		var p := _player_for("res://audio/%s.wav" % n, -6.0)
 		p.max_polyphony = 2
 		_sfx[n] = p
@@ -715,9 +730,23 @@ func _talk(who: String, id: String) -> void:
 		_play_node(id)
 
 
+## The psychedelic trip: peaks while the camera moves, folds back on arrival.
+func _warp(time := 1.1, peak := 1.0, db := -9.0) -> void:
+	if _psy_tw:
+		_psy_tw.kill()
+	var pm: ShaderMaterial = _psy.material
+	_psy.visible = true
+	_play("warp", db, randf_range(0.92, 1.08))
+	_psy_tw = create_tween()
+	_psy_tw.tween_method(func(v: float): pm.set_shader_parameter("amount", v), 0.0, peak, time * 0.45).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
+	_psy_tw.tween_method(func(v: float): pm.set_shader_parameter("amount", v), peak, 0.0, time * 0.55).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	_psy_tw.tween_callback(func(): _psy.visible = false)
+
+
 func _glide(to: Transform3D, then: String) -> void:
 	if then != "" and _state == WALK:
 		_play("swell", -16.0, randf_range(0.95, 1.05))
+		_warp(GLIDE + 0.4)
 	_glide_from = _camera.global_transform
 	_glide_to = to
 	_glide_t = 0.0
@@ -991,6 +1020,7 @@ func _arrival(floor: int) -> Vector3:
 ## and you're standing in the new floor's elevator doorway.
 func _travel(floor: int) -> void:
 	_play("lift_doors", -4.0)
+	_warp(2.4, 1.0, -8.0)
 	_fade.color.a = 1.0
 	var o := _arrival(floor)
 	_player.global_position = o
@@ -1225,6 +1255,13 @@ func _process(delta: float) -> void:
 	_tick_people(delta)
 	_tick_effects(delta)
 	_tick_type(delta)
+	if _state == WALK or _state == GLIDING or _state == TALK:
+		_glitch_t -= delta
+		if _glitch_t <= 0.0:
+			_glitch_t = 30.0
+			office.glitch_heads()
+			_play("glitch", -8.0)
+			get_tree().create_timer(office.GLITCH_HOLD).timeout.connect(func(): _play("glitch", -9.0, 0.85))
 	if _toast_t > 0.0:
 		_toast_t -= delta
 		_toast.modulate.a = clampf(_toast_t, 0.0, 1.0)
@@ -1592,4 +1629,6 @@ func _tap(pos: Vector2) -> void:
 		var hit := from + dir * (-from.y / dir.y)
 		hit.x = clampf(hit.x, -3.2, 3.2)
 		hit.z = clampf(hit.z, -2.7, 3.7)
+		if _walk_to == null or hit.distance_to(_walk_to) > 0.6:
+			_warp(0.7, 0.55, -18.0)
 		_walk_to = hit

@@ -154,6 +154,27 @@ save_wav("wrong.wav", tail(x, 1.0, 0.3) * 0.7)
 t = t_of(0.12)
 x = lowpass(rng.standard_normal(len(t)), 0.4) * np.exp(-t * 45) * 0.25 + bell(1760, 0.12, 0.5, 30) * 0.08
 save_wav("page.wav", x)
+
+# Glitch in the matrix: bitcrushed stutter, sample-and-hold square chirps,
+# a dial-up squeal and a hard cut (the heads swap to the real faces and back).
+t = t_of(0.75)
+hold = np.repeat(rng.uniform(-1, 1, len(t) // 220 + 1), 220)[:len(t)]
+sq = np.sign(np.sin(np.cumsum(2 * np.pi * (300 + 2400 * np.abs(hold)) / SR)))
+squeal = np.sin(np.cumsum(2 * np.pi * (1800 + 900 * np.sin(t * 90)) / SR)) * 0.35
+gate = (np.sin(t * 2 * np.pi * 26) > -0.2).astype(float) * (rng.uniform(0, 1, len(t)) > 0.002)
+x = (sq * 0.35 + squeal + lowpass(rng.standard_normal(len(t)), 0.9) * 0.25) * gate
+x = np.round(x * 6) / 6
+x *= np.minimum(1, t * 80) * np.clip(1 - (t - 0.62) * 9, 0, 1)
+save_wav("glitch.wav", x * 0.5)
+
+# Warp: a psychedelic swoosh between scenes, a chorused sweep with a shimmer
+# on top that blooms and folds back in.
+t = t_of(1.0)
+sweep = np.sin(np.cumsum(2 * np.pi * (220 + 660 * np.sin(np.pi * t / 1.0) ** 2) / SR))
+x = sweep * 0.3 + bell(1318, 1.0, 1.5, 3) * 0.12 + bell(1976, 1.0, 1.5, 4) * 0.08
+x += lowpass(rng.standard_normal(len(t)), 0.15) * 0.35
+x *= np.sin(np.pi * np.clip(t / 1.0, 0, 1)) ** 1.5
+save_wav("warp.wav", tail(chorus(x, 18, 13), 0.8, 0.35) * 0.55)
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(OUT, "_drone.wav"),
                 "-c:a", "libvorbis", "-q:a", "3", os.path.join(OUT, "night_drone.ogg")], check=True)
 os.remove(os.path.join(OUT, "_drone.wav"))

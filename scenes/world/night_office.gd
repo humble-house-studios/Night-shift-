@@ -712,6 +712,9 @@ func dale_stand() -> void:
 ## with an AI-generated face baked on for each coworker. PS1 warp, their own
 ## blinking eyes and talking mouth, glasses and moustache on top.
 const SCAN_DEMO := true
+## Every 30 s (main.gd) the heads glitch over to the scans, hold, glitch back.
+const GLITCH_HOLD := 4.0
+var _swaps: Array = []
 const SCAN_HEADS := {"dale": "dale", "dale3": "dale", "wendy": "wendy", "kip": "kip", "marge": "marge", "chad": "chad", "brenda": "brenda"}
 var _scan_cache := {}
 
@@ -745,8 +748,16 @@ func _scan_head(id: String, parts: Dictionary, look: Dictionary) -> void:
 	var sc := _scan(SCAN_HEADS[id])
 	var mk: Dictionary = sc[2]
 	var head: Node3D = parts.head
+	var eyes: Array = parts.eyes
+	var mouth: Node3D = parts.mouth
+	var normal: Array = []
 	for c in head.get_children():
-		c.visible = false
+		if c != mouth and not eyes.has(c):
+			normal.append(c)
+	var eye_n: Array = []
+	for e in eyes:
+		eye_n.append([e.position, e.scale])
+	var before := head.get_children()
 	var m := _mat(Color.WHITE)
 	m.set_shader_parameter("photo", sc[1])
 	m.set_shader_parameter("use_photo", 1.0)
@@ -760,14 +771,11 @@ func _scan_head(id: String, parts: Dictionary, look: Dictionary) -> void:
 	var st := Vector3(mk.stache[0], mk.stache[1], mk.stache[2])
 	var mo := Vector3(mk.mouth[0], mk.mouth[1], mk.mouth[2])
 	var half := (er.x - el.x) * 0.5
-	var eyes: Array = parts.eyes
+	var eye_s: Array = []
 	for k in eyes.size():
-		eyes[k].visible = true
-		eyes[k].position = (el if k == 0 else er) + Vector3(0, 0, 0.003)
-		eyes[k].scale = Vector3.ONE * clampf(half / 0.06, 0.7, 1.05)
-	var mouth: Node3D = parts.mouth
-	mouth.visible = true
-	mouth.position = mo + Vector3(0, 0, 0.006)
+		eye_s.append([(el if k == 0 else er) + Vector3(0, 0, 0.003), Vector3.ONE * clampf(half / 0.06, 0.7, 1.05)])
+	var mouth_n := mouth.position
+	var mouth_s := mo + Vector3(0, 0, 0.006)
 	var dark := _mat(Color(0.06, 0.06, 0.08))
 	var g := Puppet.Shape.new()
 	var any := false
@@ -789,6 +797,68 @@ func _scan_head(id: String, parts: Dictionary, look: Dictionary) -> void:
 			g.lump(Vector3(0.07, 0.03, 0.03), Vector3(st.x + side * 0.032, st.y + 0.005, maxf(st.z, mo.z) + 0.014), hair, 0.9, Vector3(0, 0, -side * 0.28))
 	if any:
 		g.commit(self, head)
+	var scan: Array = []
+	for c in head.get_children():
+		if not before.has(c):
+			scan.append(c)
+	var fx := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(0.36, 0.46)
+	fx.mesh = q
+	var fm := ShaderMaterial.new()
+	fm.shader = preload("res://scenes/world/glitch.gdshader")
+	fm.set_shader_parameter("seed", randf() * 100.0)
+	fx.material_override = fm
+	fx.position = Vector3(0, (el.y + mo.y) * 0.5, br.z + 0.06)
+	fx.visible = false
+	head.add_child(fx)
+	var rec := {"normal": normal, "scan": scan, "eyes": eyes, "eye_n": eye_n, "eye_s": eye_s,
+			"mouth": mouth, "mouth_n": mouth_n, "mouth_s": mouth_s, "fx": fx}
+	_swaps.append(rec)
+	_set_scan(rec, false)
+
+
+func _set_scan(rec: Dictionary, on: bool) -> void:
+	if not is_instance_valid(rec.fx):
+		return
+	for c in rec.normal:
+		if is_instance_valid(c):
+			c.visible = not on
+	for c in rec.scan:
+		if is_instance_valid(c):
+			c.visible = on
+	var eyes: Array = rec.eyes
+	for k in eyes.size():
+		if is_instance_valid(eyes[k]):
+			var t: Array = (rec.eye_s if on else rec.eye_n)[k]
+			eyes[k].position = t[0]
+			eyes[k].scale = t[1]
+	if is_instance_valid(rec.mouth):
+		rec.mouth.position = rec.mouth_s if on else rec.mouth_n
+
+
+## The glitch: static over every face, the head flickering between puppet and
+## scan, settling on the scan, holding, then flickering back.
+func glitch_heads() -> void:
+	_swaps = _swaps.filter(func(r): return is_instance_valid(r.fx))
+	for rec in _swaps:
+		var fx: MeshInstance3D = rec.fx
+		var fm: ShaderMaterial = fx.material_override
+		var amt := func(v: float): fm.set_shader_parameter("amount", v)
+		var show := func(on: bool):
+			if is_instance_valid(fx):
+				fx.visible = on
+		var tw := fx.create_tween()
+		for leg in [[true, 7], [false, 5]]:
+			tw.tween_callback(func(): show.call(true); amt.call(1.0))
+			for k in leg[1]:
+				tw.tween_callback(_set_scan.bind(rec, (k % 2 == 0) == leg[0]))
+				tw.tween_interval(0.08)
+			tw.tween_callback(_set_scan.bind(rec, leg[0]))
+			tw.tween_method(amt, 1.0, 0.0, 0.25)
+			tw.tween_callback(show.bind(false))
+			if leg[0]:
+				tw.tween_interval(GLITCH_HOLD - 0.81)
 
 
 func _person(id: String, body: Node3D, look: Dictionary, pose: String, holder: Node3D, yaw: float) -> void:
