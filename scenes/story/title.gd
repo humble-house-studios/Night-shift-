@@ -39,6 +39,10 @@ var _pick := 0
 var _credits: PanelContainer
 var _logo_t := 0.0
 var _last_press := 0
+## The first tap in the opening only turns the sound on (browsers keep
+## audio muted until you touch the page); after that, a tap skips ahead.
+var _heard := false
+var _sound_hint: Label
 var _screens_on := false
 
 
@@ -54,6 +58,8 @@ func setup(m: Node) -> void:
 		b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(b)
 		_bars.append(b)
+	_sound_hint = _text(PIXEL, 16, Color(1, 1, 1, 0.85))
+	_sound_hint.text = "TAP FOR SOUND"
 	_stamp = _text(PIXEL, 20, Color(1.0, 0.9, 0.75, 0.0))
 	_stamp.text = "HUMBLE HOUSE GAMES\n11:58 PM"
 	_logo = _text(BOLD, 132, Color(1, 1, 1))
@@ -156,7 +162,10 @@ func start() -> void:
 	_item("CLOCK IN", main._start_new)
 	if NightStory.has_save():
 		_item("CONTINUE THE NIGHT", main._continue)
+	_item("COLLECTION", func(): main._collect.open_album())
 	_item("CREDITS", _show_credits)
+	if DevJump.ON:
+		_item("DEV", main._open_dev)
 	_pick = 1 if NightStory.has_save() else 0
 	for n in [_logo, _sub, _start, _menu, _bar, _credits]:
 		n.visible = false
@@ -195,6 +204,8 @@ func _layout() -> void:
 	_sub.position = Vector2(0, _logo.position.y + _logo.get_combined_minimum_size().y + 8)
 	_start.size = Vector2(size.x, 0)
 	_start.position = Vector2(0, size.y * 0.72)
+	_sound_hint.size = Vector2(size.x, 0)
+	_sound_hint.position = Vector2(0, bar_h * 0.5 - 8)
 	_stamp.size = Vector2(size.x, 0)
 	_stamp.position = Vector2(0, size.y - bar_h - 90)
 	_menu.size = Vector2(w, 0)
@@ -301,6 +312,13 @@ func _press() -> void:
 	if now - _last_press < 300:
 		return
 	_last_press = now
+	if not _heard:
+		_heard = true
+		main._start_sound()
+		_sound_hint.text = "SOUND ON  ·  TAP AGAIN TO SKIP"
+		create_tween().tween_property(_sound_hint, "modulate:a", 0.0, 1.5).set_delay(2.5)
+		if _phase == "shots":
+			return
 	match _phase:
 		"shots":
 			_to_logo()

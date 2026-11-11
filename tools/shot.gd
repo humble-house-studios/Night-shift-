@@ -6,6 +6,7 @@ extends SceneTree
 var main: Node
 var out := OS.get_environment("OUT")
 var n := 0
+var reveals := 0
 
 
 func _init() -> void:
@@ -43,6 +44,14 @@ func talk(wants: Array = [], shots := false) -> void:
 		guard += 1
 		await wait(0.05)
 		if main._state == main.GLIDING:
+			continue
+		if main._collect._reveal.visible:
+			await wait(0.8)
+			if reveals < 4:
+				reveals += 1
+				await shot("reveal")
+			main._collect._keep()
+			await wait(0.5)
 			continue
 		if main._choices.get_child_count() > 0:
 			if shots:

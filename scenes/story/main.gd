@@ -85,6 +85,10 @@ var _roll: VBoxContainer
 var _roll_t := 0.0
 var _roll_len := 1.0
 var _heaven: AudioStreamPlayer
+var _collect: Control
+var _dev: PanelContainer
+var _score_tw: Tween
+const DEV_FILE := "user://dev_jump.cfg"
 var _marge_t := 0.0
 var _marge_walks := true
 var _marge_step := 0.0
@@ -120,9 +124,48 @@ func _ready() -> void:
 	_build_world()
 	_build_ui()
 	_build_sound()
+	_collect = preload("res://scenes/story/collect.gd").new()
+	add_child(_collect)
+	_collect.setup(self)
+	_dev = preload("res://scenes/story/dev_panel.gd").new()
+	add_child(_dev)
+	_dev.setup(self)
 	get_viewport().size_changed.connect(_layout)
 	_layout()
+	# A dev jump reloads the game straight into that moment.
+	var cfg := ConfigFile.new()
+	if DevJump.ON and cfg.load(DEV_FILE) == OK:
+		var i := int(cfg.get_value("dev", "jump", 0))
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(DEV_FILE))
+		story = DevJump.reach(i)
+		_title.stop()
+		_begin()
+		if story.has("ending_good") or story.has("ending_bad"):
+			_ending = "field" if story.has("ending_good") else "bad"
+			_box.visible = false
+			_show_credits()
+		return
 	_show_title()
+
+
+## DEV: jump to checkpoint i (reloads the scene so everything starts clean).
+func _dev_jump(i: int) -> void:
+	var cfg := ConfigFile.new()
+	cfg.set_value("dev", "jump", i)
+	cfg.save(DEV_FILE)
+	NightStory.wipe()
+	get_tree().reload_current_scene()
+
+
+func _open_dev() -> void:
+	_menu.visible = false
+	_dev.visible = true
+	_layout()
+
+
+func _open_album() -> void:
+	_menu.visible = false
+	_collect.open_album()
 
 
 # ---------------------------------------------------------------- world
@@ -329,6 +372,13 @@ func _build_ui() -> void:
 		if not _voices_on:
 			_voice.stop())
 	mv.add_child(_voices_btn)
+	var album := _button("COLLECTION")
+	album.pressed.connect(_open_album)
+	mv.add_child(album)
+	if DevJump.ON:
+		var dev := _button("DEV: JUMP TO A MOMENT")
+		dev.pressed.connect(_open_dev)
+		mv.add_child(dev)
 	var again := _button("START THE NIGHT OVER")
 	again.pressed.connect(_new_night)
 	mv.add_child(again)
@@ -412,6 +462,10 @@ func _layout() -> void:
 	_clock.position = Vector2(l, t + 6)
 	_goals.position = Vector2(l, t + 60)
 	_pause.position = Vector2(r - 88, t)
+	if _collect:
+		_collect.layout(l, t, r, b)
+	if _dev:
+		_dev.place(l, t, r, b)
 	_pause.size = Vector2(88, 88)
 	_text.add_theme_font_size_override("font_size", 34 if wide else 40)
 	for btn in _choices.get_children():
@@ -503,7 +557,10 @@ func _cue(id: String, now := false) -> void:
 		_score.volume_db = SCORE_DB
 		_score.play()
 		return
+	if _score_tw:
+		_score_tw.kill()
 	var tw := create_tween()
+	_score_tw = tw
 	if _score.playing:
 		tw.tween_property(_score, "volume_db", -50.0, 2.5)
 	tw.tween_callback(func():
@@ -514,7 +571,10 @@ func _cue(id: String, now := false) -> void:
 
 
 func _fade_score(db: float, time := 3.0) -> void:
+	if _score_tw:
+		_score_tw.kill()
 	var tw := create_tween()
+	_score_tw = tw
 	tw.tween_property(_score, "volume_db", db, time)
 	if db <= -50.0:
 		tw.tween_callback(_score.stop)
@@ -595,6 +655,8 @@ func _begin() -> void:
 	for id in office.screen_ids():
 		office.screen(id)
 	_menu.visible = false
+	_dev.visible = false
+	_collect.sync(story)
 	_apply_story_state()
 	_player.position = START if story.act() == 1 else _arrival(story.act())
 	_yaw = 0.0
@@ -671,6 +733,7 @@ func _play_node(id: String) -> void:
 	_hint.visible = false
 	for ev in story.enter(id):
 		_event(ev)
+	_collect.check(story)
 	_pages = story.pages(id)
 	if id == "end_people":
 		_pages = _epilogue_pages()
@@ -777,6 +840,7 @@ func _choose(i: int) -> void:
 	_voice.stop()
 	_play("choice", -9.0, randf_range(0.97, 1.03))
 	var next := story.pick(_node, i)
+	_collect.check(story)
 	_clear_choices()
 	if next == "":
 		_end_talk()
@@ -834,8 +898,7 @@ func _event(ev: String) -> void:
 		"rules":
 			_toast_show("RULES CARD ADDED  ·  II TO READ")
 		"item":
-			_play("shimmer", -4.0)
-			_toast_show(_item_toast())
+			pass  # the card reveal (collect.gd) plays its own shimmer
 		"buzz":
 			_play("busted", -8.0, 1.4)
 		"ding":
@@ -898,6 +961,8 @@ func _event(ev: String) -> void:
 			_play("lift_doors", -8.0, 0.7)
 		"roof":
 			_ending = "field"
+			_play("lift_doors", -6.0)
+			_play("swell", -6.0, 0.6)
 		"finale":
 			_play("ring", -3.0)
 			_shake = 0.3
@@ -939,6 +1004,7 @@ func _travel(floor: int) -> void:
 
 func _act_card(ev: String) -> void:
 	var act := 2 if ev == "act2" else 3
+	_collect.refresh(story)
 	_toast_show(Night.ACT_NAMES[act])
 	_toast_t = 5.0
 	if act == 3:
@@ -997,13 +1063,13 @@ func _update_hud() -> void:
 	var lines := []
 	if story.has("intro_done") and not story.has("ended"):
 		lines.append("FLOOR %d" % story.act())
-		for g in story.goals():
-			lines.append(("[X] " if g[1] else "[ ] ") + g[0])
 	_goals.text = "\n".join(lines)
 	_rules_btn.visible = story.has("rules")
 	var in_game := _state != TITLE_SCREEN and _state != ENDING
 	_clock.visible = in_game
 	_goals.visible = in_game
+	_collect._chips.visible = in_game and story.has("intro_done") and not story.has("ended")
+	_collect._relics.visible = in_game
 	_pause.visible = in_game
 
 
@@ -1025,21 +1091,35 @@ func _open_menu() -> void:
 ## Up past the roof: a white-out, then the wheat field, the people you got
 ## out standing in it, a dream-pop track and the credits.
 func _to_field() -> void:
-	_fade.color = Color(1.0, 0.97, 0.9, 1.0)
-	office.field_cast(story.saved(), story.has("coffee_friend"))
-	_world_box.material = _title._post
-	_title._post.set_shader_parameter("flash", 0.0)
-	_score.stop()
-	_music.stop()
-	_drone.stop()
-	_amb.stop()
-	_heaven.play()
-	_camera.far = 200.0
-	_field_cam(0.0)
+	_end.visible = false
+	_dawn = -1.0
+	_fade.color = Color(1.0, 0.96, 0.88, 0.0)
+	# Everything else bows out; the room washes to warm white as the
+	# elevator rises past the top floor.
+	for p in [_score, _music, _drone, _amb]:
+		var out := create_tween()
+		out.tween_property(p, "volume_db", -60.0, 2.6)
+		out.tween_callback(p.stop)
+	if _score_tw:
+		_score_tw.kill()
 	var tw := create_tween()
-	tw.tween_interval(0.4)
-	tw.tween_property(_fade, "color:a", 0.0, 3.5)
-	tw.tween_callback(func(): _fade.color = Color(0, 0, 0, 0))
+	tw.tween_property(_fade, "color:a", 1.0, 2.8).set_trans(Tween.TRANS_SINE)
+	tw.tween_callback(func():
+		office.field_cast(story.saved(), story.has("coffee_friend"))
+		_world_box.material = _title._post
+		_title._post.set_shader_parameter("flash", 0.0)
+		_camera.far = 200.0
+		_field_cam(0.0)
+		var song := "res://audio/score/field.ogg"
+		_heaven.stream = load(song) if ResourceLoader.exists(song) else load("res://audio/heaven.ogg")
+		_heaven.volume_db = -30.0
+		_heaven.play()
+		create_tween().tween_property(_heaven, "volume_db", -4.0, 5.0)
+		_play("lift_ding", -10.0, 1.2)
+		_roll_t = -4.0
+		_end.visible = true)
+	tw.tween_interval(0.8)
+	tw.tween_property(_fade, "color:a", 0.0, 5.0).set_trans(Tween.TRANS_SINE)
 
 
 ## The camera in the field: low in the wheat, drifting toward the group,
@@ -1122,7 +1202,7 @@ func _show_credits() -> void:
 	_end.modulate.a = 1.0
 	_end_btn.visible = false
 	_end.get_node("Shade").color = Color(1.0, 0.95, 0.85, 0.0) if good else Color(0.1, 0.0, 0.0, 0.45)
-	_roll_t = 0.0
+	_roll_t = -4.0 if good else 0.0
 	_layout()
 	await get_tree().process_frame
 	_roll.size.y = 0
@@ -1140,6 +1220,7 @@ func _show_credits() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	_voice.stream_paused = _collect.showing()
 	_tick_camera(delta)
 	_tick_people(delta)
 	_tick_effects(delta)
@@ -1164,7 +1245,7 @@ func _process(delta: float) -> void:
 
 
 func _tick_type(delta: float) -> void:
-	if not _typing:
+	if not _typing or _collect.showing():
 		return
 	var n := _text.text.length()
 	var step := maxi(0, int(_cps * delta + randf()))
@@ -1208,7 +1289,7 @@ func _tick_camera(delta: float) -> void:
 			_tick_walk(delta)
 		ENDING:
 			if _ending == "field":
-				_field_cam(_roll_t)
+				_field_cam(maxf(0.0, _roll_t + 4.0))
 			elif _ending == "good":
 				var eye := Vector3(-0.6, 1.5, 1.4)
 				var look := Vector3(-3.5, 1.4, -0.6)
@@ -1346,7 +1427,7 @@ func _tick_effects(delta: float) -> void:
 		var k := _dawn * _dawn * (3.0 - 2.0 * _dawn)
 		office.set_night(1.0 - k)
 		office.floor3_dawn(k)
-		if _dawn > 0.05 and not _music.playing:
+		if _dawn > 0.05 and not _music.playing and _ending == "":
 			_music.play()
 			_music.volume_db = -30.0
 		_music.volume_db = lerpf(-30.0, -8.0, k)
@@ -1456,7 +1537,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Is this point on a button or panel (they take their own taps)?
 func _over_ui(pos: Vector2) -> bool:
-	if _title.visible or _menu.visible or _card.visible:
+	if _title.visible or _menu.visible or _card.visible or _collect.showing() or _dev.visible:
 		return true
 	if _pause.visible and _pause.get_global_rect().grow(8).has_point(pos):
 		return true

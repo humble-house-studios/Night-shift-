@@ -41,7 +41,15 @@ CUES = {
          "https://opengameart.org/sites/default/files/dark_ambient_drone_loop.flac", "https://opengameart.org/content/dark-ambient-drone"),
         ("Lightless Dawn", "Kevin MacLeod", CC_BY, KEVIN + "Lightless%20Dawn.mp3", "https://incompetech.com"),
     ],
+    # The wheat field and the credits: dreamy synthwave/trance that opens up.
+    # Not looped: it plays once, start to finish, under the roll.
+    "field": [
+        ("Dreamstate", "Bogart VGM", "CC BY 3.0",
+         "https://opengameart.org/sites/default/files/Dreamstate.mp3", "https://opengameart.org/content/dreamstate-synthwave"),
+        ("Floating Cities", "Kevin MacLeod", CC_BY, KEVIN + "Floating%20Cities.mp3", "https://incompetech.com"),
+    ],
 }
+ONCE = {"field"}
 MAX_SECONDS = 240
 FOLD = 8.0
 PROCESS = 2  # bump to remake every loop
@@ -72,6 +80,14 @@ def main():
                 if r.returncode != 0 or duration(raw) < 30:
                     print("%s: %s didn't download" % (cue, title))
                     continue
+                if cue in ONCE:
+                    length = min(duration(raw), 330.0)
+                    fade = "afade=t=in:d=1.5,afade=t=out:st=%.2f:d=6,loudnorm=I=-16:TP=-1.5:LRA=11" % (length - 6)
+                    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", raw, "-t", str(length), "-af", fade,
+                                    "-ar", "44100", "-ac", "2", "-c:a", "libvorbis", "-q:a", "4", out], check=True)
+                    credits[cue] = {"title": title, "author": author, "license": lic, "url": url, "page": page, "process": PROCESS}
+                    print("%s: %s by %s (%.0f s)" % (cue, title, author, length))
+                    break
                 length = min(duration(raw), MAX_SECONDS + FOLD)
                 pcm = os.path.join(d, "pcm.raw")
                 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", raw, "-t", str(length), "-f", "f32le",
