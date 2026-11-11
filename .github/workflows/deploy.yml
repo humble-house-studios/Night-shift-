@@ -51,6 +51,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Record the lines
+        continue-on-error: true
         shell: bash
         run: |
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
@@ -61,7 +62,7 @@ jobs:
           pip install -q kokoro-onnx soundfile
           python3 tools/record_voices.py models | tee voices.log
           echo "::notice title=Voices::$(tail -2 voices.log | tr '\n' ' ')"
-          grep "^groq:" voices.log | head -2 | while IFS= read -r line; do echo "::notice title=Dale voice::${line:0:200}"; done
+          { grep "^groq:" voices.log || true; } | head -2 | while IFS= read -r line; do echo "::notice title=Dale voice::${line:0:200}"; done
         env:
           # Look Busy's voice server: Dale in his Groq Orpheus "troy" voice.
           VOICE_URL: https://dale-voice.humble-house.workers.dev
