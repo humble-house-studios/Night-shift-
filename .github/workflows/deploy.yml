@@ -146,11 +146,20 @@ jobs:
           # Lay the demo's files over this checkout: the recorded voices, the
           # score and everything already imported stay in place.
           git checkout FETCH_HEAD -- .
-          godot --headless --import >/dev/null 2>&1 || true
-          mkdir -p build/web/demo
-          godot --headless --export-release "Web" build/web/demo/index.html > demo_export.log 2>&1
-          echo "::notice title=Demo voices::$(grep -c 'Storing File: res://.godot/imported/.*ogg' demo_export.log) clips packed"
-          [ -f build/web/demo/index.html ] && echo "::notice title=Demo::https://humble-house-studios.github.io/Night-shift-/demo/"
+          # Test copies: /demo/ everything, /demo-noheads/ without the scanned
+          # heads, /demo-nofx/ without the transitions and glitch.
+          export_to() {
+            godot --headless --import >/dev/null 2>&1 || true
+            mkdir -p "build/web/$1"
+            godot --headless --export-release "Web" "build/web/$1/index.html" > "export_$1.log" 2>&1
+            [ -f "build/web/$1/index.html" ] && echo "::notice title=$1::https://humble-house-studios.github.io/Night-shift-/$1/ ($(grep -c 'Storing File: res://.godot/imported/.*ogg' "export_$1.log") clips)"
+          }
+          export_to demo
+          sed -i 's/^const SCAN_DEMO := true/const SCAN_DEMO := false/' scenes/world/night_office.gd
+          export_to demo-noheads
+          git checkout FETCH_HEAD -- scenes/world/night_office.gd
+          sed -i 's/^const FX_DEMO := true/const FX_DEMO := false/' scenes/story/main.gd
+          export_to demo-nofx
 
       - uses: actions/upload-pages-artifact@v3
         with:
