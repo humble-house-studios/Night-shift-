@@ -1,0 +1,79 @@
+# Every push to main: run the story tests, export Night Shift for the web and
+# publish it to GitHub Pages (humble-house-studios.github.io/Night-shift-/),
+# so the newest night is always one tap away on your phone.
+name: Build and deploy to phone
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.3"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install export templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+
+      - name: Import project
+        run: godot --headless --import || true
+
+      # The story tests (GUT): every link in the script exists and a whole
+      # night plays through to each ending. A failing test stops the build.
+      - name: Run story tests
+        shell: bash
+        run: |
+          set +e
+          godot --headless -s addons/gut/gut_cmdln.gd 2>&1 | tee test.log
+          code=${PIPESTATUS[0]}
+          sed 's/\x1b\[[0-9;]*m//g' test.log | grep -E "\[Failed\]|SCRIPT ERROR|Parse Error" | head -20 | while IFS= read -r line; do
+            echo "::error title=Story test::${line}"
+          done
+          exit $code
+
+      - name: Export web build
+        shell: bash
+        run: |
+          mkdir -v -p build/web
+          set +e
+          godot --headless --export-release "Web" build/web/index.html 2>&1 | tee export.log
+          { grep -iE "error|failed|cannot|invalid" export.log | grep -v 'Parameter "m" is null' || true; } | head -20 | while IFS= read -r line; do
+            echo "::warning title=Godot export::${line}"
+          done
+          if [ ! -f build/web/index.html ]; then
+            tail -15 export.log | while IFS= read -r line; do echo "::error title=Godot log tail::${line}"; done
+            exit 1
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
