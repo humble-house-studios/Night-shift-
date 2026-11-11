@@ -1255,7 +1255,9 @@ func _process(delta: float) -> void:
 	_tick_people(delta)
 	_tick_effects(delta)
 	_tick_type(delta)
-	if _state == WALK or _state == GLIDING or _state == TALK:
+	# The glitch clock runs while you're up and about, and keeps running
+	# through a conversation once it has started (never during the opening).
+	if _state == WALK or ((_state == GLIDING or _state == TALK) and _glitch_t < 30.0):
 		_glitch_t -= delta
 		if _glitch_t <= 0.0:
 			_glitch_t = 30.0
