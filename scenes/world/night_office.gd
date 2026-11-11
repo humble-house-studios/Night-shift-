@@ -739,6 +739,28 @@ func _scan_head(parts: Dictionary) -> void:
 	mi.mesh = mesh
 	mi.material_override = m
 	head.add_child(mi)
+	# His own eyes (they still blink) and mouth (still talks), moved onto the
+	# scan's face, plus his glasses (frames only, so the eyes show) and moustache.
+	var eyes: Array = parts.eyes
+	for k in eyes.size():
+		var side := -1.0 if k == 0 else 1.0
+		eyes[k].visible = true
+		eyes[k].position = Vector3(side * 0.062, 0.228, 0.148)
+	var mouth: Node3D = parts.mouth
+	mouth.visible = true
+	mouth.position = Vector3(0, 0.09, 0.182)
+	var dark := _mat(Color(0.06, 0.06, 0.08))
+	var hair := _mat(LOOKS.dale.hair)
+	var g := Puppet.Shape.new()
+	var gz := 0.198
+	for side in [-1.0, 1.0]:
+		for bar in [[Vector3(0.07, 0.011, 0.011), Vector3(0, 0.026, 0)], [Vector3(0.07, 0.011, 0.011), Vector3(0, -0.026, 0)],
+				[Vector3(0.011, 0.058, 0.011), Vector3(0.034, 0, 0)], [Vector3(0.011, 0.058, 0.011), Vector3(-0.034, 0, 0)]]:
+			g.box(bar[0], Vector3(side * 0.062, 0.23, gz) + bar[1], dark)
+		g.box(Vector3(0.011, 0.011, 0.15), Vector3(side * 0.1, 0.238, 0.122), dark, Vector3(0, side * 0.12, 0))
+		g.lump(Vector3(0.07, 0.03, 0.03), Vector3(side * 0.032, 0.123, 0.192), hair, 0.9, Vector3(0, 0, -side * 0.28))
+	g.box(Vector3(0.05, 0.011, 0.011), Vector3(0, 0.236, gz + 0.004), dark)
+	g.commit(self, head)
 
 
 func _person(id: String, body: Node3D, look: Dictionary, pose: String, holder: Node3D, yaw: float) -> void:
