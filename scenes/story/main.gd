@@ -96,6 +96,10 @@ var _amb: AudioStreamPlayer
 var _drone: AudioStreamPlayer
 var _music: AudioStreamPlayer
 var _blip: AudioStreamPlayer
+var _voice: AudioStreamPlayer
+var _voices_on := true
+var _voices_btn: Button
+var _cps := TYPE_CPS
 var _sfx := {}
 var _muted := false
 
@@ -197,7 +201,7 @@ func _label(font: Font, size: int, col := Color.WHITE) -> Label:
 	return l
 
 
-func _button(text: String, size := 22) -> Button:
+func _button(text: String, size := 32) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = Vector2(0, 88)
@@ -221,17 +225,17 @@ func _build_ui() -> void:
 	_tags.draw.connect(_draw_tags)
 	add_child(_tags)
 
-	_clock = _label(PIXEL, 30, Color(1.0, 0.45, 0.35))
+	_clock = _label(PIXEL, 34, Color(1.0, 0.45, 0.35))
 	add_child(_clock)
-	_goals = _label(PIXEL, 16, Color(0.85, 0.85, 0.9))
+	_goals = _label(PIXEL, 20, Color(0.85, 0.85, 0.9))
 	_goals.add_theme_constant_override("line_spacing", 10)
 	add_child(_goals)
-	_hint = _label(BODY, 22, Color(0.75, 0.75, 0.85, 0.8))
+	_hint = _label(BODY, 28, Color(0.75, 0.75, 0.85, 0.8))
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.text = "Tap someone to talk  ·  tap the floor to walk  ·  drag to look"
+	_hint.text = "Tap to talk or walk  ·  drag to look"
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(_hint)
-	_toast = _label(PIXEL, 18, Color(1.0, 0.9, 0.5))
+	_toast = _label(PIXEL, 24, Color(1.0, 0.9, 0.5))
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_toast.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -254,13 +258,13 @@ func _build_ui() -> void:
 	v.add_theme_constant_override("separation", 14)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_box.add_child(v)
-	_name = _label(PIXEL, 18)
+	_name = _label(PIXEL, 24)
 	v.add_child(_name)
-	_text = _label(BODY, 30, Color(0.95, 0.94, 0.9))
+	_text = _label(BODY, 40, Color(0.95, 0.94, 0.9))
 	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text.custom_minimum_size = Vector2(0, 120)
 	v.add_child(_text)
-	_more = _label(PIXEL, 14, Color(0.7, 0.7, 0.8))
+	_more = _label(PIXEL, 18, Color(0.7, 0.7, 0.8))
 	_more.text = "TAP ▼"
 	_more.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	v.add_child(_more)
@@ -276,7 +280,7 @@ func _build_ui() -> void:
 	var mv := VBoxContainer.new()
 	mv.add_theme_constant_override("separation", 14)
 	_menu.add_child(mv)
-	var mt := _label(PIXEL, 22, Color(1.0, 0.45, 0.35))
+	var mt := _label(PIXEL, 26, Color(1.0, 0.45, 0.35))
 	mt.text = "BREAK ROOM"
 	mt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	mv.add_child(mt)
@@ -289,6 +293,13 @@ func _build_ui() -> void:
 	_sound_btn = _button("SOUND: ON")
 	_sound_btn.pressed.connect(_toggle_sound)
 	mv.add_child(_sound_btn)
+	_voices_btn = _button("VOICES: ON")
+	_voices_btn.pressed.connect(func():
+		_voices_on = not _voices_on
+		_voices_btn.text = "VOICES: ON" if _voices_on else "VOICES: OFF"
+		if not _voices_on:
+			_voice.stop())
+	mv.add_child(_voices_btn)
 	var again := _button("START THE NIGHT OVER")
 	again.pressed.connect(_new_night)
 	mv.add_child(again)
@@ -301,11 +312,11 @@ func _build_ui() -> void:
 	var cv := VBoxContainer.new()
 	cv.add_theme_constant_override("separation", 16)
 	_card.add_child(cv)
-	var ct := _label(PIXEL, 18, Color(0.3, 0.15, 0.1))
+	var ct := _label(PIXEL, 22, Color(0.3, 0.15, 0.1))
 	ct.text = "THE RULES OF THE NIGHT SHIFT"
 	ct.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	cv.add_child(ct)
-	var cb := _label(BODY, 28, Color(0.15, 0.12, 0.1))
+	var cb := _label(BODY, 36, Color(0.15, 0.12, 0.1))
 	cb.text = "\n\n".join(Night.RULES)
 	cb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	cv.add_child(cb)
@@ -346,22 +357,22 @@ func _build_title() -> void:
 	logo.add_theme_constant_override("shadow_offset_x", 6)
 	logo.add_theme_constant_override("shadow_offset_y", 6)
 	v.add_child(logo)
-	var sub := _label(PIXEL, 16, Color(0.85, 0.8, 0.75))
+	var sub := _label(PIXEL, 20, Color(0.85, 0.8, 0.75))
 	sub.text = "A LOOK BUSY STORY"
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(sub)
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0, 40)
 	v.add_child(gap)
-	var go := _button("CLOCK IN", 28)
+	var go := _button("CLOCK IN", 36)
 	go.name = "Go"
 	go.pressed.connect(_start_new)
 	v.add_child(go)
-	var cont := _button("CONTINUE THE NIGHT", 24)
+	var cont := _button("CONTINUE THE NIGHT", 32)
 	cont.name = "Continue"
 	cont.pressed.connect(_continue)
 	v.add_child(cont)
-	var note := _label(BODY, 20, Color(0.65, 0.65, 0.75))
+	var note := _label(BODY, 28, Color(0.65, 0.65, 0.75))
 	note.text = "One night. 11:58 PM to 6:00 AM.\nAbout 20 minutes. Sound on."
 	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(note)
@@ -387,17 +398,17 @@ func _build_end() -> void:
 	v.name = "Lines"
 	v.add_theme_constant_override("separation", 22)
 	panel.add_child(v)
-	_end_title = _label(TITLE, 56, Color(1.0, 0.82, 0.5))
+	_end_title = _label(TITLE, 64, Color(1.0, 0.82, 0.5))
 	_end_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_end_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(_end_title)
-	_end_lines = _label(BODY, 25, Color(0.96, 0.94, 0.9))
+	_end_lines = _label(BODY, 34, Color(0.96, 0.94, 0.9))
 	_end_lines.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_end_lines.add_theme_constant_override("line_spacing", 6)
 	_end_lines.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
 	_end_lines.add_theme_constant_override("outline_size", 6)
 	v.add_child(_end_lines)
-	_end_btn = _button("WORK ANOTHER NIGHT", 24)
+	_end_btn = _button("WORK ANOTHER NIGHT", 32)
 	_end_btn.pressed.connect(_new_night)
 	_end_btn.visible = false
 	v.add_child(_end_btn)
@@ -419,15 +430,18 @@ func _layout() -> void:
 	_goals.position = Vector2(l, t + 60)
 	_pause.position = Vector2(r - 88, t)
 	_pause.size = Vector2(88, 88)
-	var box_w := minf(r - l, 980.0)
+	_text.add_theme_font_size_override("font_size", 34 if wide else 40)
+	for btn in _choices.get_children():
+		btn.add_theme_font_size_override("font_size", 28 if wide else 32)
+	var box_w := minf(r - l, 1000.0)
 	_box.size = Vector2(box_w, 0)
 	_box.custom_minimum_size = Vector2(box_w, 0)
 	_text.custom_minimum_size = Vector2(box_w - 52.0, 120)
 	for btn in _choices.get_children():
 		btn.custom_minimum_size.x = box_w - 52.0
 	_box.position = Vector2((size.x - box_w) * 0.5, b - _box.get_combined_minimum_size().y)
-	_hint.size = Vector2(r - l, 60)
-	_hint.position = Vector2(l, b - 60)
+	_hint.size = Vector2(r - l, 80)
+	_hint.position = Vector2(l, b - 80)
 	_toast.size = Vector2(r - l, 80)
 	_toast.position = Vector2(l, size.y * (0.3 if wide else 0.24))
 	var mw := minf(560.0, r - l)
@@ -476,6 +490,9 @@ func _build_sound() -> void:
 	_music = _player_for("res://audio/office_title.ogg", -8.0, true)
 	_blip = _player_for("res://audio/blip.wav", -14.0)
 	_blip.max_polyphony = 3
+	_voice = AudioStreamPlayer.new()
+	_voice.volume_db = 0.0
+	add_child(_voice)
 	for n in ["ring", "bell", "creak", "busted", "lift_ding", "lift_doors", "print", "thump", "step_1", "step_2"]:
 		var p := _player_for("res://audio/%s.wav" % n, -6.0)
 		p.max_polyphony = 2
@@ -617,8 +634,22 @@ func _show_page() -> void:
 	_text.text = p[1]
 	_text.visible_characters = 0
 	_typing = true
+	_cps = TYPE_CPS
+	_voice.stop()
+	var clip := _clip(_speaker, p[1])
+	if _voices_on and clip != null:
+		_voice.stream = clip
+		_voice.play()
+		# Type along with the voice, a little ahead of it.
+		_cps = clampf(p[1].length() / maxf(0.4, clip.get_length() * 0.8), 14.0, 60.0)
 	_more.visible = false
 	_layout_box()
+
+
+## The recorded voice for a page, if there is one (tools/record_voices.py).
+func _clip(who: String, text: String) -> AudioStream:
+	var path := "res://audio/voice/%s.ogg" % (who + "|" + text).md5_text().substr(0, 12)
+	return load(path) if ResourceLoader.exists(path) else null
 
 
 func _layout_box() -> void:
@@ -681,6 +712,7 @@ func _clear_choices() -> void:
 
 
 func _choose(i: int) -> void:
+	_voice.stop()
 	_play("creak", -20.0, 2.2)
 	var next := story.pick(_node, i)
 	_clear_choices()
@@ -691,6 +723,7 @@ func _choose(i: int) -> void:
 
 
 func _end_talk() -> void:
+	_voice.stop()
 	_box.visible = false
 	_clear_choices()
 	story.save()
@@ -939,12 +972,12 @@ func _tick_type(delta: float) -> void:
 	if not _typing:
 		return
 	var n := _text.text.length()
-	var step := maxi(1, int(TYPE_CPS * delta + randf()))
+	var step := maxi(0, int(_cps * delta + randf()))
 	var shown := mini(n, _text.visible_characters + step)
 	_text.visible_characters = shown
 	var cast: Array = Night.CAST.get(_speaker, Night.CAST.narr)
 	_blip_n += step
-	if cast[2] > 0.0 and _blip_n >= 3:
+	if cast[2] > 0.0 and _blip_n >= 3 and not _voice.playing:
 		_blip_n = 0
 		_blip.pitch_scale = cast[2] * randf_range(0.94, 1.06)
 		_blip.play()
@@ -1066,7 +1099,7 @@ func _tick_people(delta: float) -> void:
 		var blink := not frozen and fmod(_t + id.length() * 1.3, 4.1) < 0.12
 		for e in p.eyes:
 			e.scale.y = 0.15 if blink else (1.25 if frozen else 1.0)
-		var speaking: bool = _typing and _speaker.begins_with(id)
+		var speaking: bool = (_typing or _voice.playing) and _state == TALK and _speaker.begins_with(id)
 		var open := 0.6 + 0.6 * absf(sin(_t * 13.0)) if speaking or (frozen and _state != TALK) else 0.25
 		p.mouth.scale.y = lerpf(p.mouth.scale.y, open, minf(1.0, delta * 20.0))
 
@@ -1112,6 +1145,8 @@ func _tick_effects(delta: float) -> void:
 			_set_printy_face()
 	if _drone.playing and _dawn < 0.0:
 		var want := -6.0 if story.has("blackout_done") else -12.0
+		if _voice.playing:
+			want -= 6.0
 		_drone.volume_db = lerpf(_drone.volume_db, want, minf(1.0, delta * 0.5))
 
 
@@ -1141,14 +1176,14 @@ func _draw_tags() -> void:
 		if p.x < -50 or p.x > vp.x + 50 or p.y < 0 or p.y > vp.y:
 			continue
 		var tag := _spot_name(id)
-		var fs := 16 if person else 13
+		var fs := 22 if person else 17
 		var w := PIXEL.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 		var a := clampf(1.4 - dist / 8.0, 0.45, 1.0)
 		_tags.draw_rect(Rect2(p.x - w * 0.5 - 10, p.y - fs - 12, w + 20, fs + 18), Color(0, 0, 0, 0.55 * a))
 		_tags.draw_string(PIXEL, Vector2(p.x - w * 0.5, p.y - 4), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, a))
 		if news:
 			var bob := sin(_t * 4.0) * 4.0
-			_tags.draw_string(PIXEL, Vector2(p.x - 9, p.y - fs - 22 + bob), "!", HORIZONTAL_ALIGNMENT_LEFT, -1, 28, Color(1.0, 0.85, 0.3))
+			_tags.draw_string(PIXEL, Vector2(p.x - 9, p.y - fs - 22 + bob), "!", HORIZONTAL_ALIGNMENT_LEFT, -1, 36, Color(1.0, 0.85, 0.3))
 
 
 func _available(id: String) -> bool:

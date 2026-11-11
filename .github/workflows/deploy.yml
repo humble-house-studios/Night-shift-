@@ -22,12 +22,62 @@ env:
   GODOT_VERSION: "4.3"
 
 jobs:
+  # Every line, recorded on the build machine with Kokoro (a free, open-source
+  # neural voice; no API keys, no daily limits). Recorded clips are cached,
+  # so a push only records the lines that are new or changed.
+  voices:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: audio/voice
+          key: voices-v1-${{ hashFiles('data/voice_lines.json', 'tools/record_voices.py') }}-${{ github.run_id }}
+          restore-keys: |
+            voices-v1-${{ hashFiles('data/voice_lines.json', 'tools/record_voices.py') }}-
+            voices-v1-
+      - uses: actions/cache@v4
+        with:
+          path: models
+          key: kokoro-v1.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Record the lines
+        shell: bash
+        run: |
+          command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+          mkdir -p models
+          base=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0
+          [ -f models/kokoro-v1.0.onnx ] || curl -sSL -o models/kokoro-v1.0.onnx $base/kokoro-v1.0.onnx
+          [ -f models/voices-v1.0.bin ] || curl -sSL -o models/voices-v1.0.bin $base/voices-v1.0.bin
+          pip install -q kokoro-onnx soundfile
+          python3 tools/record_voices.py models | tee voices.log
+          echo "::notice title=Voices::$(tail -1 voices.log)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voices
+          path: audio/voice
+          retention-days: 3
+
   build:
+    needs: voices
+    if: always()
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.3
     steps:
       - uses: actions/checkout@v4
+
+      # The recorded lines, where the game looks them up.
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: voices
+          path: audio/voice
+      - name: Voices in place
+        shell: bash
+        run: echo "::notice title=Voices::$(ls audio/voice 2>/dev/null | grep -c ogg) clips in the build"
 
       - name: Install export templates
         run: |

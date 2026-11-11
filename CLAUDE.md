@@ -22,6 +22,18 @@ words, and handle git, builds and fixes yourself.
 - Sounds: Look Busy's in `audio/`, plus Night Shift's own from
   `tools/make_audio.py` (blip, print, thump, night drone).
 
+## Voices
+Every line is spoken, recorded with **Kokoro** (free open-source neural
+voice, `tools/record_voices.py`) on GitHub's build machine: no API keys, no
+daily limits, no credits. Cast and studio treatment per character in `CAST`
+there (Night Manager through a phone, Printy robotic). The deploy's `voices`
+job records only new or changed lines (folder cached), the build plays
+`audio/voice/<md5("who|text")[:12]>.ogg` per page (`main.gd` `_clip()`), and
+the text types along with the voice. **After editing the script run
+`godot --headless -s res://tools/export_lines.gd`** (writes
+`data/voice_lines.json`; `tests/test_voices.gd` fails if you forget).
+Bump `VERSION` in record_voices.py to re-record everything after recasting.
+
 ## Where things are
 - `data/night_script.gd`: the whole story. Nodes (who, pages, choices, flags,
   clock, events), who you can tap (`SPOTS`), which conversation each thing
