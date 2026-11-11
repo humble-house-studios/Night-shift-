@@ -135,6 +135,23 @@ jobs:
             exit 1
           fi
 
+      # A second, test-only build of the demo branch at /demo/ (the main game
+      # at the root is untouched). Skipped quietly if the branch is gone.
+      - name: Export demo branch (build/web/demo)
+        continue-on-error: true
+        shell: bash
+        run: |
+          git config --global --add safe.directory '*'
+          git fetch --depth 1 origin demo/dale-scan-head || exit 0
+          git worktree add /tmp/demo FETCH_HEAD
+          mkdir -p /tmp/demo/audio
+          cp -r audio/voice audio/score /tmp/demo/audio/ 2>/dev/null || true
+          mkdir -p "$GITHUB_WORKSPACE/build/web/demo"
+          cd /tmp/demo
+          godot --headless --import >/dev/null 2>&1 || true
+          godot --headless --export-release "Web" "$GITHUB_WORKSPACE/build/web/demo/index.html" 2>&1 | tail -5
+          [ -f "$GITHUB_WORKSPACE/build/web/demo/index.html" ] && echo "::notice title=Demo::https://humble-house-studios.github.io/Night-shift-/demo/"
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
