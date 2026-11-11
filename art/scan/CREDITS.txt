@@ -3,3 +3,6 @@ Infinite, 3D Head Scan by Lee Perry-Smith is licensed under a Creative Commons A
 Based on a work at www.triplegangers.com.
 Permissions beyond the scope of this license may be available at http://www.ir-ltd.net/
 Please remember: Do what you want with the files, but always mention where you got them from...
+
+
+Face photos baked onto the coworkers (wendy, kip, marge, brenda, chad): AI-generated faces from Generated Photos' free 100K set (https://generated.photos, via github.com/ozgrozer/100k-faces). DEMO ONLY: check their license before shipping.

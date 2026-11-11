@@ -707,66 +707,93 @@ func dale_stand() -> void:
 	_person("dale", stand, LOOKS.dale, "stand", _dale_root, PI / 2)
 
 
-## DEMO: Dale's head swapped for a real 3D head scan (art/scan, CC BY 3.0
-## Lee Perry-Smith / Infinite Realities), photo texture, PS1 warp.
+## DEMO: real 3D head scans with photo textures (art/scan, see CREDITS.txt):
+## the Lee Perry-Smith scan (CC BY 3.0) for Dale, and the same scan reshaped
+## with an AI-generated face baked on for each coworker. PS1 warp, their own
+## blinking eyes and talking mouth, glasses and moustache on top.
 const SCAN_DEMO := true
+const SCAN_HEADS := {"dale": "dale", "dale3": "dale", "wendy": "wendy", "kip": "kip", "marge": "marge", "chad": "chad", "brenda": "brenda"}
+var _scan_cache := {}
 
 
-func _scan_head(parts: Dictionary) -> void:
+func _scan(name: String) -> Array:
+	if not _scan_cache.has(name):
+		var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://art/scan/%s_head.json" % name))
+		var v := PackedVector3Array(); var n := PackedVector3Array(); var uv := PackedVector2Array()
+		var fv: Array = d.v; var fn: Array = d.n; var fu: Array = d.uv
+		for i in range(0, fv.size(), 3):
+			v.append(Vector3(fv[i], fv[i + 1], fv[i + 2]))
+			n.append(Vector3(fn[i], fn[i + 1], fn[i + 2]))
+		for i in range(0, fu.size(), 2):
+			uv.append(Vector2(fu[i], fu[i + 1]))
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = v
+		arrays[Mesh.ARRAY_NORMAL] = n
+		arrays[Mesh.ARRAY_TEX_UV] = uv
+		arrays[Mesh.ARRAY_INDEX] = PackedInt32Array(d.i)
+		var mesh := ArrayMesh.new()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		var tex := ImageTexture.create_from_image(Image.load_from_file("res://art/scan/%s_face.png" % name))
+		_scan_cache[name] = [mesh, tex, d.marks]
+	return _scan_cache[name]
+
+
+func _scan_head(id: String, parts: Dictionary, look: Dictionary) -> void:
+	if not SCAN_DEMO or not SCAN_HEADS.has(id):
+		return
+	var sc := _scan(SCAN_HEADS[id])
+	var mk: Dictionary = sc[2]
 	var head: Node3D = parts.head
 	for c in head.get_children():
 		c.visible = false
-	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://art/scan/dale_head.json"))
-	var v := PackedVector3Array(); var n := PackedVector3Array(); var uv := PackedVector2Array()
-	var fv: Array = d.v; var fn: Array = d.n; var fu: Array = d.uv
-	for i in range(0, fv.size(), 3):
-		v.append(Vector3(fv[i], fv[i + 1], fv[i + 2]))
-		n.append(Vector3(fn[i], fn[i + 1], fn[i + 2]))
-	for i in range(0, fu.size(), 2):
-		uv.append(Vector2(fu[i], fu[i + 1]))
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = v
-	arrays[Mesh.ARRAY_NORMAL] = n
-	arrays[Mesh.ARRAY_TEX_UV] = uv
-	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array(d.i)
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	var m := _mat(Color.WHITE)
-	m.set_shader_parameter("photo", ImageTexture.create_from_image(Image.load_from_file("res://art/scan/dale_face.png")))
+	m.set_shader_parameter("photo", sc[1])
 	m.set_shader_parameter("use_photo", 1.0)
 	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
+	mi.mesh = sc[0]
 	mi.material_override = m
 	head.add_child(mi)
-	# His own eyes (they still blink) and mouth (still talks), moved onto the
-	# scan's face, plus his glasses (frames only, so the eyes show) and moustache.
+	var el := Vector3(mk.eyeL[0], mk.eyeL[1], mk.eyeL[2])
+	var er := Vector3(mk.eyeR[0], mk.eyeR[1], mk.eyeR[2])
+	var br := Vector3(mk.bridge[0], mk.bridge[1], mk.bridge[2])
+	var st := Vector3(mk.stache[0], mk.stache[1], mk.stache[2])
+	var mo := Vector3(mk.mouth[0], mk.mouth[1], mk.mouth[2])
+	var half := (er.x - el.x) * 0.5
 	var eyes: Array = parts.eyes
 	for k in eyes.size():
-		var side := -1.0 if k == 0 else 1.0
 		eyes[k].visible = true
-		eyes[k].position = Vector3(side * 0.062, 0.228, 0.148)
+		eyes[k].position = (el if k == 0 else er) + Vector3(0, 0, 0.003)
+		eyes[k].scale = Vector3.ONE * clampf(half / 0.06, 0.7, 1.05)
 	var mouth: Node3D = parts.mouth
 	mouth.visible = true
-	mouth.position = Vector3(0, 0.09, 0.182)
+	mouth.position = mo + Vector3(0, 0, 0.006)
 	var dark := _mat(Color(0.06, 0.06, 0.08))
-	var hair := _mat(LOOKS.dale.hair)
 	var g := Puppet.Shape.new()
-	var gz := 0.198
-	for side in [-1.0, 1.0]:
-		for bar in [[Vector3(0.07, 0.011, 0.011), Vector3(0, 0.026, 0)], [Vector3(0.07, 0.011, 0.011), Vector3(0, -0.026, 0)],
-				[Vector3(0.011, 0.058, 0.011), Vector3(0.034, 0, 0)], [Vector3(0.011, 0.058, 0.011), Vector3(-0.034, 0, 0)]]:
-			g.box(bar[0], Vector3(side * 0.062, 0.23, gz) + bar[1], dark)
-		g.box(Vector3(0.011, 0.011, 0.15), Vector3(side * 0.1, 0.238, 0.122), dark, Vector3(0, side * 0.12, 0))
-		g.lump(Vector3(0.07, 0.03, 0.03), Vector3(side * 0.032, 0.123, 0.192), hair, 0.9, Vector3(0, 0, -side * 0.28))
-	g.box(Vector3(0.05, 0.011, 0.011), Vector3(0, 0.236, gz + 0.004), dark)
-	g.commit(self, head)
+	var any := false
+	if look.get("glasses", false):
+		any = true
+		var gz := br.z + 0.008
+		var w := half * 1.1
+		for side in [-1.0, 1.0]:
+			var cx: float = side * half
+			for bar in [[Vector3(w, 0.011, 0.011), Vector3(0, 0.026, 0)], [Vector3(w, 0.011, 0.011), Vector3(0, -0.026, 0)],
+					[Vector3(0.011, 0.058, 0.011), Vector3(w * 0.5, 0, 0)], [Vector3(0.011, 0.058, 0.011), Vector3(-w * 0.5, 0, 0)]]:
+				g.box(bar[0], Vector3(cx, el.y + 0.002, gz) + bar[1], dark)
+			g.box(Vector3(0.011, 0.011, 0.15), Vector3(side * (half + w * 0.5 + 0.004), el.y + 0.01, gz - 0.075), dark, Vector3(0, side * 0.12, 0))
+		g.box(Vector3(maxf(0.02, half * 2.0 - w), 0.011, 0.011), Vector3(0, el.y + 0.008, gz + 0.004), dark)
+	if look.get("moustache", false):
+		any = true
+		var hair := _mat(look.hair)
+		for side in [-1.0, 1.0]:
+			g.lump(Vector3(0.07, 0.03, 0.03), Vector3(st.x + side * 0.032, st.y + 0.005, maxf(st.z, mo.z) + 0.014), hair, 0.9, Vector3(0, 0, -side * 0.28))
+	if any:
+		g.commit(self, head)
 
 
 func _person(id: String, body: Node3D, look: Dictionary, pose: String, holder: Node3D, yaw: float) -> void:
 	var parts: Dictionary = Puppet.build(self, body, look, Callable(self, "_mat"), pose)
-	if id == "dale" and SCAN_DEMO:
-		_scan_head(parts)
+	_scan_head(id, parts, look)
 	people[id] = {"holder": holder, "body": body, "head": parts.head, "mouth": parts.mouth, "eyes": parts.eyes, "yaw": yaw}
 
 
@@ -1322,6 +1349,7 @@ func marge_sit() -> void:
 	var body := Node3D.new()
 	p.holder.add_child(body)
 	var parts: Dictionary = Puppet.build(self, body, LOOKS2.marge, Callable(self, "_mat"), "sit")
+	_scan_head("marge", parts, LOOKS2.marge)
 	people.marge = {"holder": p.holder, "body": body, "head": parts.head, "mouth": parts.mouth, "eyes": parts.eyes, "yaw": PI, "sat": true}
 	_end_room()
 
@@ -1571,6 +1599,7 @@ func field_cast(ids: Array, coffee := false) -> void:
 		var b := Node3D.new()
 		h.add_child(b)
 		var parts: Dictionary = Puppet.build(self, b, looks[id], Callable(self, "_mat"), "stand")
+		_scan_head(id, parts, looks[id])
 		people["field_" + id] = {"holder": h, "body": b, "head": parts.head, "mouth": parts.mouth, "eyes": parts.eyes, "yaw": spots[i][1]}
 	if coffee:
 		var h := Node3D.new()
