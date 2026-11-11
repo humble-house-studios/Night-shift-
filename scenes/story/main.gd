@@ -30,6 +30,8 @@ var office: Node
 var _psy: ColorRect
 var _psy_tw: Tween
 var _glitch_t := 30.0
+## DEMO: the psychedelic transitions and the 30 s head glitch.
+const FX_DEMO := true
 var _state := TITLE_SCREEN
 var _world_vp: SubViewport
 var _world_box: SubViewportContainer
@@ -732,6 +734,8 @@ func _talk(who: String, id: String) -> void:
 
 ## The psychedelic trip: peaks while the camera moves, folds back on arrival.
 func _warp(time := 1.1, peak := 1.0, db := -9.0) -> void:
+	if not FX_DEMO:
+		return
 	if _psy_tw:
 		_psy_tw.kill()
 	var pm: ShaderMaterial = _psy.material
@@ -1257,7 +1261,7 @@ func _process(delta: float) -> void:
 	_tick_type(delta)
 	# The glitch clock runs while you're up and about, and keeps running
 	# through a conversation once it has started (never during the opening).
-	if _state == WALK or ((_state == GLIDING or _state == TALK) and _glitch_t < 30.0):
+	if FX_DEMO and (_state == WALK or ((_state == GLIDING or _state == TALK) and _glitch_t < 30.0)):
 		_glitch_t -= delta
 		if _glitch_t <= 0.0:
 			_glitch_t = 30.0
