@@ -26,6 +26,9 @@ uniform vec3 room_fog = vec3(-1.0);
 // After hours (0 = golden hour, 1 = night): office.gd _apply_night() sets it
 // on every office material when 5 PM rings mid-game (look_busy.gd).
 uniform float after_hours = 0.0;
+// A photo texture (the scanned heads), warped the PS1 way. 0 = off.
+uniform sampler2D photo : source_color, filter_nearest;
+uniform float use_photo = 0.0;
 
 varying vec4 aff;
 // Hand-made shapes (addons/hh_minigames/_shared/handmade.gd) paint themselves
@@ -35,6 +38,7 @@ varying vec3 paint;
 varying vec3 light;
 varying vec3 wnormal;
 varying float fog;
+varying vec3 affuv;
 
 // Golden hour: a low orange sun through the window blinds does the work (two
 // lights: the glass, and the long beam it throws across the carpet), the
@@ -109,6 +113,7 @@ void vertex() {
 	POSITION = clip;
 	// Interpolate world position * w and w, then divide: affine texture warp.
 	aff = vec4(wp * clip.w, clip.w);
+	affuv = vec3(UV * clip.w, clip.w);
 }
 
 void fragment() {
@@ -137,6 +142,9 @@ void fragment() {
 	} else if (pattern == 7) {
 		vec2 f = fract(p * vec2(38.0, 30.0));
 		col = mix(albedo2, albedo, step(0.22, min(f.x, f.y)));
+	}
+	if (use_photo > 0.5) {
+		col = texture(photo, affuv.xy / affuv.z).rgb;
 	}
 	// Hand-painted: blotchy coats, long brush strokes, and each piece mixed a
 	// little differently, all on the chunky texel grid.

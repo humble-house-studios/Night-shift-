@@ -707,8 +707,44 @@ func dale_stand() -> void:
 	_person("dale", stand, LOOKS.dale, "stand", _dale_root, PI / 2)
 
 
+## DEMO: Dale's head swapped for a real 3D head scan (art/scan, CC BY 3.0
+## Lee Perry-Smith / Infinite Realities), photo texture, PS1 warp.
+const SCAN_DEMO := true
+
+
+func _scan_head(parts: Dictionary) -> void:
+	var head: Node3D = parts.head
+	for c in head.get_children():
+		c.visible = false
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://art/scan/dale_head.json"))
+	var v := PackedVector3Array(); var n := PackedVector3Array(); var uv := PackedVector2Array()
+	var fv: Array = d.v; var fn: Array = d.n; var fu: Array = d.uv
+	for i in range(0, fv.size(), 3):
+		v.append(Vector3(fv[i], fv[i + 1], fv[i + 2]))
+		n.append(Vector3(fn[i], fn[i + 1], fn[i + 2]))
+	for i in range(0, fu.size(), 2):
+		uv.append(Vector2(fu[i], fu[i + 1]))
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = v
+	arrays[Mesh.ARRAY_NORMAL] = n
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array(d.i)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	var m := _mat(Color.WHITE)
+	m.set_shader_parameter("photo", ImageTexture.create_from_image(Image.load_from_file("res://art/scan/dale_face.png")))
+	m.set_shader_parameter("use_photo", 1.0)
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.material_override = m
+	head.add_child(mi)
+
+
 func _person(id: String, body: Node3D, look: Dictionary, pose: String, holder: Node3D, yaw: float) -> void:
 	var parts: Dictionary = Puppet.build(self, body, look, Callable(self, "_mat"), pose)
+	if id == "dale" and SCAN_DEMO:
+		_scan_head(parts)
 	people[id] = {"holder": holder, "body": body, "head": parts.head, "mouth": parts.mouth, "eyes": parts.eyes, "yaw": yaw}
 
 
