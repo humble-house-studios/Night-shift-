@@ -539,7 +539,8 @@ func _player_for(path: String, db: float, loop := false) -> AudioStreamPlayer:
 ## Long music and ambience stream as they play. On the web, Godot 4.3 plays
 ## sounds as "samples" by default, decoding the whole file into raw audio
 ## first: a five-minute score track becomes 100+ MB, and iPhone Safari kills
-## the page 20-45 s into the night. Voices and SFX stay samples (short).
+## the page. Voices stream too (hundreds of different clips over a night);
+## only the short SFX stay samples.
 func _long(p: AudioStreamPlayer) -> AudioStreamPlayer:
 	p.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	return p
@@ -555,7 +556,7 @@ func _build_sound() -> void:
 	_heaven = _long(_player_for("res://audio/heaven.ogg", -4.0, false))
 	_blip = _player_for("res://audio/blip.wav", -14.0)
 	_blip.max_polyphony = 3
-	_voice = AudioStreamPlayer.new()
+	_voice = _long(AudioStreamPlayer.new())
 	_voice.volume_db = 0.0
 	add_child(_voice)
 	for n in ["ring", "bell", "creak", "busted", "lift_ding", "lift_doors", "print", "thump", "step_1", "step_2", "choice", "shimmer", "swell", "tapestop", "wrong", "page", "glitch", "warp"]:
@@ -1263,7 +1264,12 @@ func _show_credits() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	_voice.stream_paused = _collect.showing()
+	# Only touch stream_paused when it changes: on the web, Godot 4.3 decodes
+	# the whole voice clip again every time it's set, every frame (2 MB a go),
+	# which crashed iPhone Safari 20-45 s into the night.
+	var hold: bool = _collect.showing()
+	if _voice.stream_paused != hold:
+		_voice.stream_paused = hold
 	_tick_camera(delta)
 	_tick_people(delta)
 	_tick_effects(delta)
