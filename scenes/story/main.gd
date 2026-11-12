@@ -536,14 +536,23 @@ func _player_for(path: String, db: float, loop := false) -> AudioStreamPlayer:
 	return p
 
 
+## Long music and ambience stream as they play. On the web, Godot 4.3 plays
+## sounds as "samples" by default, decoding the whole file into raw audio
+## first: a five-minute score track becomes 100+ MB, and iPhone Safari kills
+## the page 20-45 s into the night. Voices and SFX stay samples (short).
+func _long(p: AudioStreamPlayer) -> AudioStreamPlayer:
+	p.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
+	return p
+
+
 func _build_sound() -> void:
-	_amb = _player_for("res://audio/office_ac.ogg", -18.0, true)
-	_drone = _player_for("res://audio/night_drone.ogg", DRONE_DB, true)
-	_music = _player_for("res://audio/office_title.ogg", -8.0, true)
-	_score = AudioStreamPlayer.new()
+	_amb = _long(_player_for("res://audio/office_ac.ogg", -18.0, true))
+	_drone = _long(_player_for("res://audio/night_drone.ogg", DRONE_DB, true))
+	_music = _long(_player_for("res://audio/office_title.ogg", -8.0, true))
+	_score = _long(AudioStreamPlayer.new())
 	_score.volume_db = -60.0
 	add_child(_score)
-	_heaven = _player_for("res://audio/heaven.ogg", -4.0, false)
+	_heaven = _long(_player_for("res://audio/heaven.ogg", -4.0, false))
 	_blip = _player_for("res://audio/blip.wav", -14.0)
 	_blip.max_polyphony = 3
 	_voice = AudioStreamPlayer.new()
